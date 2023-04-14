@@ -2,7 +2,8 @@
 
 ## Getting Started:
 
-`npm run dev`
+- Run frontend: `npm run dev`
+- Run python backend: `python app.py`
 
 ## Package Installation
 ### Node:
