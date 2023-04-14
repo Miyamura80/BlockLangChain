@@ -1,0 +1,16 @@
+.hexagon {
+    @apply w-7 h-4 bg-gray-800 relative;
+  }
+  
+  .hexagon:before, .hexagon:after {
+    @apply absolute w-0 h-0 border-l-4 border-r-4;
+  }
+  
+  .hexagon:before {
+    @apply top-[-4px] border-b-4 border-gray-800;
+  }
+  
+  .hexagon:after {
+    @apply bottom-[-4px] border-t-4 border-gray-800;
+  }
+  
