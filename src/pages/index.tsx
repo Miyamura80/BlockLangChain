@@ -41,7 +41,6 @@ export default function Home() {
   }) 
   const [messages, setMessages] = useState<MessageType[]>([]);
   const [input, setInput] = useState<string>('');
-  const [metamaskAddr, setMetamaskAddr] = useState<string>('Not connected to wallet');
   const [chatSession, setChatSession] = useState<ChatSession>([]);
   const [language, setLanguage] = useState<string>('english');
   const { address, isConnected } = useAccount();
@@ -128,11 +127,12 @@ export default function Home() {
 
 
   const connectMetaMask = async () => {
-    console.log("connect")
     if (typeof window.ethereum !== 'undefined') {
       try {
         // Request user to connect MetaMask wallet
-        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+
+    console.log("connect")
+        await connect();
   
         // You can now use the connected account for further actions, e.g., getting the account balance
         // const provider = new ethers.providers.Web3Provider(window.ethereum);
@@ -142,9 +142,8 @@ export default function Home() {
         // Display connected account address in the chat
         setMessages((prevMessages) => [
           ...prevMessages,
-          { sender: 'other', text: `Connected to ${accounts[0]}` },
+          { sender: 'other', text: `Connected to metamask` },
         ]);
-        setMetamaskAddr(`Connected to: ${accounts[0]}`);
       } catch (error:any) {
         // Handle errors that occurred during the connection process
         console.error('Error connecting MetaMask wallet:', error.message);
@@ -257,26 +256,7 @@ export default function Home() {
             {/* Messages */}
             <div className="overflow-y-auto h-72 mb-4">
               {messages.map((message, index) => (
-                <div
-                  key={index}
-                  className={`flex mb-4 ${
-                    message.sender === 'self'
-                      ? 'justify-end items-end'
-                      : 'justify-start items-start'
-                  }`}
-                >
-
-
-                  <div
-                    className={`rounded-lg px-4 py-2 mx-2 ${
-                      message.sender === 'self'
-                        ? 'bg-blue-500 text-white'
-                        : 'bg-slate-300 text-black'
-                    }`}
-                  >
-                    {message.text}
-                  </div>
-                </div>
+                <Message key={index} message={message} />
               ))}
               <div ref={messagesEndRef}></div>
             </div>
@@ -295,7 +275,7 @@ export default function Home() {
 
             {/* MetaMask Address */}
             <div className="border-t border-gray-300 py-4 text-black"> 
-                  {metamaskAddr}
+                  {address}
             </div>
 
             <div className="container mx-auto">

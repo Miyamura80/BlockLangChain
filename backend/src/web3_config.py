@@ -27,7 +27,7 @@ def setup_web3(mode="infura"):
     else:
         raise ValueError(f"Invalid web3 setup mode '{mode}'.")
 
-    assert w3.isConnected()
+    assert w3.is_connected()
     return w3
 
 
