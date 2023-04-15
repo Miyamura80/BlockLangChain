@@ -2,7 +2,12 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next
 
 ## Getting Started
 
+<<<<<<< HEAD
 First, run the development server:
+=======
+- Run frontend: `npm run dev`
+- Run python backend: `python app.py`
+>>>>>>> 2a77c124640cd5607458bdee91c51e2029c784ee
 
 ```bash
 npm run dev
