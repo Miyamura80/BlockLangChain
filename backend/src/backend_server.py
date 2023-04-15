@@ -24,15 +24,15 @@ tools = [
         func=search.run,
         description="useful for finding information that isn't very clear or when you need to answer questions about current events or the current state of the world. Try asking this from time to time. \nUSE FOR FINDING CONTRACTS OF ENTITIES YOU DON'T KNOW!"
     ),
-    Tool(
-        name="BLOCKCHAIN_SEARCH",
-        func=search.run,
-        description=(
-                "This is a model that given a search like query, finds relevant information. However, it's specific for "
-                "blockchain use cases. It is particularly useful for finding contract addresses of people and protocols.\n"
-                "Example: run(what is the contract address of Uniswap router?) = 0xEf1c6E67703c7BD7107eed8303Fbe6EC2554BF6B"
-            )
-        ),
+    # Tool(
+    #     name="BLOCKCHAIN_SEARCH",
+    #     func=search.run,
+    #     description=(
+    #             "This is a model that given a search like query, finds relevant information. However, it's specific for "
+    #             "blockchain use cases. It is particularly useful for finding contract addresses of people and protocols.\n"
+    #             "Example: run(what is the contract address of Uniswap router?) = 0xEf1c6E67703c7BD7107eed8303Fbe6EC2554BF6B"
+    #         )
+    #     ),
     Tool(
         name="EVALUATE_MATH",
         func=llm_math_chain.run,
@@ -74,7 +74,7 @@ Observation: the result of the action
 When you have a response to say to the Human, or if you do not need to use a tool, you MUST use the format:
 ``
 Thought: Should I use a tool? No
-AI: [your response here]
+AI: [your response here, including the tools that were used in a TOOL(INPUT) format.].
 ``
 """
 SUFFIX = """
