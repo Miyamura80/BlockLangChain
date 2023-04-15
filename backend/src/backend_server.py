@@ -121,9 +121,9 @@ def get_agent():
                 "current_time",
                 "language",
             ],
-            "prefix": PREFIX,
+            # "prefix": PREFIX,
             "format_instructions": INSTRUCTIONS,
-            "suffix": SUFFIX,
+            # "suffix": SUFFIX,
         },
     )
     agent.agent.llm_chain.verbose = True
@@ -141,15 +141,19 @@ def user(user_message, history):
 
 def bot(history):
     prompt = history[-1][0]
-    res = agent(
-        {
-            "input": prompt,
-            "current_time": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            "language": "English",
-        }
-    )
+    try:
+        res = agent(
+            {
+                "input": prompt,
+                "current_time": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                "language": "English",
+            }
+        )
 
-    response = res["output"]
+        response = res["output"]
+    except:
+        response = "Unfortunatetly, my database doesn't have this information. "
+
     history[-1][1] = response
 
     # free up some memory if we have too many messages

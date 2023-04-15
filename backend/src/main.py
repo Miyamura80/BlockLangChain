@@ -37,8 +37,20 @@ def translate_to_japanese(ai_output):
     return response.choices[0].text.strip()
 
 
-# Connect to the Ethereum testnet (e.g., Rinkeby)
-w3 = Web3(Web3.HTTPProvider(f"https://goerli.infura.io/v3/{INFURA_API_TOKEN}"))
+def gpt4_inference(ai_output):
+    prompt = (
+        f"Try solving this: {ai_output}"
+    )
+    response = openai.Completion.create(
+        engine="text-davinci-003",  # Replace this with the appropriate engine name for ChatGPT
+        prompt=prompt,
+        max_tokens=100,  # Adjust the number of tokens based on the desired length of the response
+        n=1,  # Number of responses you want to generate
+        stop=None,  # List of stop sequences, or None if you want the model to decide
+        temperature=0.8,  # Higher values (e.g., 1) make the output more random, lower values (e.g., 0) make it more focused
+    )
+
+    return response.choices[0].text.strip()
 
 
 @app.route("/api/message", methods=["POST"])
