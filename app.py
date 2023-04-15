@@ -1,8 +1,10 @@
-from flask import Flask, request, jsonify, send_from_directory
+from flask import Flask, request, jsonify, session
 from web3 import Web3
 from flask_cors import CORS
-from web3 import Web3, exceptions
+from web3 import Web3
+import os
 import configparser
+from datetime import datetime as dt
 
 # Secrets
 INFURA_API_TOKEN = ""
@@ -28,7 +30,17 @@ def handle_chat():
         return jsonify(text=full_chat_list[0], session=chatSession)        
     else:
         return jsonify(text="", session=chatSession)
-    
+
+
+# This API is used when you sent a message when const USE_AI = true; in `index.tsx`
+@app.route("/api/bot_interaction/<address>", methods=["POST"])
+def handle_api_bot_interaction(address):
+    return jsonify(text="Constant AI")
+
+
+@app.route("/api/reinitialise/<address>", methods=["POST"])
+def handle_api_reinitialise(address):
+    return jsonify(text="reset")
 
 
 
