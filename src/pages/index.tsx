@@ -64,7 +64,9 @@ export default function Home() {
   };
   useEffect(() => {
     if (language) {
-      fetch(`http://localhost:5000/api/set_language/${language}`, {
+
+
+      fetch(`https://blocklangchain-production.up.railway.app/api/set_language/${language}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -87,7 +89,7 @@ export default function Home() {
   /* Chat Session Memory Handling */
   const resetMemory = async () => {
     // Make API call to Flask backend
-    const response = await fetch('https://backend-python-production.up.railway.app/api/reinitialise/69420', {  // Update the URL
+    const response = await fetch('https://blocklangchain-production.up.railway.app/api/reinitialise/69420', {  // Update the URL
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -154,7 +156,7 @@ export default function Home() {
   };
 
   
-  const USE_AI = false;
+  const USE_AI = true;
 
   const sendChatSession = async (chatSessionString: string, recentString: string) => {
     if (recentString.toLowerCase() === 'reset') {
@@ -166,7 +168,7 @@ export default function Home() {
     let api_sign = '';
 
     console.log(process.env.DEPLOYMENT_ENV)
-    if (true) {
+    if (process.env.DEPLOYMENT_ENV == null) {
       api_sign = !USE_AI ? 'https://blocklangchain-production.up.railway.app/api/message': 'https://blocklangchain-production.up.railway.app/api/bot_interaction/69420';
     } else {
       api_sign = !USE_AI ? 'http://localhost:5000/api/message': 'http://localhost:5000/api/bot_interaction/69420';
