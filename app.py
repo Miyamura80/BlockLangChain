@@ -24,9 +24,15 @@ openai.api_key = OPENAI_API_TOKEN
 app = Flask(__name__)
 CORS(app)
 
-LANGUAGE = 'ENGLISH'
+LANGUAGE = "ENGLISH"
+
+
 def translate_to_japanese(ai_output):
-    prompt = f"Translate the following to ${LANGUAGE} \n {ai_output}" if LANGUAGE != 'english' else f"{ai_output}"
+    prompt = (
+        f"Translate the following to ${LANGUAGE} \n {ai_output}"
+        if LANGUAGE != "english"
+        else f"{ai_output}"
+    )
     response = openai.Completion.create(
         engine="text-davinci-003",  # Replace this with the appropriate engine name for ChatGPT
         prompt=prompt,
@@ -38,21 +44,27 @@ def translate_to_japanese(ai_output):
 
     return response.choices[0].text.strip()
 
+
 # Connect to the Ethereum testnet (e.g., Rinkeby)
 w3 = Web3(Web3.HTTPProvider(f"https://goerli.infura.io/v3/{INFURA_API_TOKEN}"))
 
 
-@app.route('/api/message', methods=['POST'])
+@app.route("/api/message", methods=["POST"])
 def handle_chat():
     data = request.get_json()
-    chatSession = data['chatSession']
-    full_chat_list = chatSession.split(',')
+    chatSession = data["chatSession"]
+    full_chat_list = chatSession.split(",")
     if len(chatSession) > 0:
         print("calling openai API")
-        text_output = full_chat_list[0] if LANGUAGE == "english" else translate_to_japanese(full_chat_list[0])
+        text_output = (
+            full_chat_list[0]
+            if LANGUAGE == "english"
+            else translate_to_japanese(full_chat_list[0])
+        )
         return jsonify(text=text_output, session=chatSession)
     else:
         return jsonify(text="", session=chatSession)
+
 
 # This API is used when you sent a message when const USE_AI = true; in `index.tsx`
 @app.route("/api/bot_interaction/<address>", methods=["POST"])
@@ -69,8 +81,9 @@ def handle_api_reinitialise(address):
 def set_language(lang):
     global LANGUAGE
     LANGUAGE = lang
-    print("langaugusdauh",lang)
+    print("langaugusdauh", lang)
     return jsonify(text="reset")
+
 
 # @app.route('/api/get_nonce', methods=['POST'])
 # def get_nonce():
@@ -88,5 +101,5 @@ def set_language(lang):
 #         print(e)
 #         return jsonify({"error": str(e)}), 500
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     app.run(debug=True)

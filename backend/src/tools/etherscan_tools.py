@@ -30,7 +30,9 @@ class EtherscanABIQuery(SyncTool):
     def _run(self, query: str) -> str:
         try:
             chat = ChatOpenAI(temperature=0, model_name="gpt-3.5-turbo")
-            clean_query = chat.call_as_llm(f"Extract only the contract address from {query}")
+            clean_query = chat.call_as_llm(
+                f"Extract only the contract address from {query}"
+            )
         except Exception as e:
             return f"Query failed with exception: {e}!"
 
@@ -41,7 +43,7 @@ class EtherscanABIQuery(SyncTool):
                 f"&apikey={etherscan_key}"
             )
 
-            abi = eval(response.text)['result']
+            abi = eval(response.text)["result"]
         except Exception as e:
             return f"Query failed with exception: {e}!"
 
@@ -79,14 +81,15 @@ class EtherscanTransactionsQuery(SyncTool):
     def _run(self, query: str) -> str:
         try:
             chat = ChatOpenAI(temperature=0, model_name="gpt-3.5-turbo")
-            clean_query = chat.call_as_llm(f"Extract only the contract address from {query}")
+            clean_query = chat.call_as_llm(
+                f"Extract only the contract address from {query}"
+            )
         except Exception as e:
             return f"Query failed with exception: {e}!"
 
         try:
             response = requests.get(
-                f"https://etherscan.io/address/{clean_query}",
-                headers=HEADERS
+                f"https://etherscan.io/address/{clean_query}", headers=HEADERS
             )
 
             clean_html = clean_html(response.text)

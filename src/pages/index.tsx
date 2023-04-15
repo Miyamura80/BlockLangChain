@@ -7,6 +7,9 @@ import { ethers } from 'ethers';
 import { IDKitWidget } from '@worldcoin/idkit'
 import type { ISuccessResult } from "@worldcoin/idkit";
 import dynamic from 'next/dynamic';
+import { Message } from '@/components/Message';
+import { useAccount, useConnect } from 'wagmi';
+import { InjectedConnector } from 'wagmi/connectors/injected'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -27,18 +30,24 @@ type ChatSession = string[]
 
 declare global {
   interface Window {
+    // @ts-ignore
     ethereum: any;
   }
 }
 
 export default function Home() {
+  const { connect } = useConnect({
+    connector: new InjectedConnector(),
+  }) 
   const [messages, setMessages] = useState<MessageType[]>([]);
   const [input, setInput] = useState<string>('');
   const [metamaskAddr, setMetamaskAddr] = useState<string>('Not connected to wallet');
   const [chatSession, setChatSession] = useState<ChatSession>([]);
   const [language, setLanguage] = useState<string>('english');
-
+  const { address, isConnected } = useAccount();
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  console.log("ADDRESS", address)
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -82,7 +91,7 @@ export default function Home() {
 
   const resetMemory = async () => {
     // Make API call to Flask backend
-    const response = await fetch('http://localhost:5000/api/reinitialise/69420', {  // Update the URL
+    const response = await fetch('https://backend-python-production.up.railway.app/api/reinitialise/69420', {  // Update the URL
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -99,6 +108,7 @@ export default function Home() {
   }
 
   const connectMetaMask = async () => {
+    console.log("connect")
     if (typeof window.ethereum !== 'undefined') {
       try {
         // Request user to connect MetaMask wallet
@@ -135,8 +145,9 @@ export default function Home() {
     }
 
 
-    const api_sign = !USE_AI ? 'http://localhost:5000/api/message': 'http://localhost:5000/api/bot_interaction/69420';
-    setInput('');
+    // const api_sign = !USE_AI ? 'http://localhost:5000/api/message': 'http://localhost:5000/api/bot_interaction/69420';
+    // setInput('');
+    const api_sign = !USE_AI ? 'https://backend-python-production.up.railway.app/api/message': 'https://backend-python-production.up.railway.app/api/bot_interaction/69420';
     // Make API call to Flask backend
     const response = await fetch(api_sign, {  // Update the URL
       method: 'POST',
