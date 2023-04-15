@@ -37,7 +37,6 @@ export default function Home() {
   }) 
   const [messages, setMessages] = useState<MessageType[]>([]);
   const [input, setInput] = useState<string>('');
-  const [metamaskAddr, setMetamaskAddr] = useState<string>('Not connected to wallet');
   const [chatSession, setChatSession] = useState<ChatSession>([]);
   const [language, setLanguage] = useState<string>('english');
   const [sign, setSign] = useState<any>(null);
@@ -62,7 +61,9 @@ export default function Home() {
   };
   useEffect(() => {
     if (language) {
-      fetch(`http://localhost:5000/api/set_language/${language}`, {
+
+
+      fetch(`https://blocklangchain-production.up.railway.app/api/set_language/${language}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -85,7 +86,7 @@ export default function Home() {
   /* Chat Session Memory Handling */
   const resetMemory = async () => {
     // Make API call to Flask backend
-    const response = await fetch('https://backend-python-production.up.railway.app/api/reinitialise/69420', {  // Update the URL
+    const response = await fetch('https://blocklangchain-production.up.railway.app/api/reinitialise/69420', {  // Update the URL
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -126,11 +127,12 @@ export default function Home() {
 
 
   const connectMetaMask = async () => {
-    console.log("connect")
     if (typeof window.ethereum !== 'undefined') {
       try {
         // Request user to connect MetaMask wallet
-        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+
+    console.log("connect")
+        await connect();
   
         // You can now use the connected account for further actions, e.g., getting the account balance
         // const provider = new ethers.providers.Web3Provider(window.ethereum);
@@ -140,9 +142,8 @@ export default function Home() {
         // Display connected account address in the chat
         setMessages((prevMessages) => [
           ...prevMessages,
-          { sender: 'other', text: `Connected to ${accounts[0]}` },
+          { sender: 'other', text: `Connected to metamask` },
         ]);
-        setMetamaskAddr(`Connected to: ${accounts[0]}`);
       } catch (error:any) {
         // Handle errors that occurred during the connection process
         console.error('Error connecting MetaMask wallet:', error.message);
@@ -153,7 +154,7 @@ export default function Home() {
   };
 
   
-  const USE_AI = false;
+  const USE_AI = true;
 
   const sendChatSession = async (chatSessionString: string, recentString: string) => {
     if (recentString.toLowerCase() === 'reset') {
@@ -164,9 +165,9 @@ export default function Home() {
 
     let api_sign = '';
 
-
-    if (process.env.hasOwnProperty('DEPLOYMENT_ENV')) {
-      api_sign = !USE_AI ? 'https://backend-python-production.up.railway.app/api/message': 'https://backend-python-production.up.railway.app/api/bot_interaction/69420';
+    console.log(process.env.DEPLOYMENT_ENV)
+    if (process.env.DEPLOYMENT_ENV == null) {
+      api_sign = !USE_AI ? 'https://blocklangchain-production.up.railway.app/api/message': 'https://blocklangchain-production.up.railway.app/api/bot_interaction/69420';
     } else {
       api_sign = !USE_AI ? 'http://localhost:5000/api/message': 'http://localhost:5000/api/bot_interaction/69420';
       setInput('');
@@ -256,26 +257,7 @@ export default function Home() {
             {/* Messages */}
             <div className="overflow-y-auto h-72 mb-4">
               {messages.map((message, index) => (
-                <div
-                  key={index}
-                  className={`flex mb-4 ${
-                    message.sender === 'self'
-                      ? 'justify-end items-end'
-                      : 'justify-start items-start'
-                  }`}
-                >
-
-
-                  <div
-                    className={`rounded-lg px-4 py-2 mx-2 ${
-                      message.sender === 'self'
-                        ? 'bg-blue-500 text-white'
-                        : 'bg-slate-300 text-black'
-                    }`}
-                  >
-                    {message.text}
-                  </div>
-                </div>
+                <Message key={index} message={message} />
               ))}
               <div ref={messagesEndRef}></div>
             </div>
@@ -294,7 +276,7 @@ export default function Home() {
 
             {/* MetaMask Address */}
             <div className="border-t border-gray-300 py-4 text-black"> 
-                  {metamaskAddr}
+                  {address}
             </div>
 
             <div className="container mx-auto">

@@ -29,11 +29,8 @@ const AddressMessage = ({ address }: { address: string }) => {
     const contract = new Contract(address, erc20ABI, signer);
 
     try {
-      console.log("fetching");
       await contract.symbol();
       const decimals = await contract.decimals();
-
-      console.log("decimals,", decimals);
 
       setErc20Name(await contract.name());
       setBalance(formatUnits(await contract.balanceOf(acctAddress), decimals));
