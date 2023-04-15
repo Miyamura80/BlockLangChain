@@ -58,7 +58,7 @@ personal_routers = {}
 @app.route("/api/bot_interaction/<address>", methods=["POST"])
 def handle_api_bot_interaction(address):
     if address not in personal_routers:
-        personal_routers[address] = AddressRouter(address)
+        personal_routers[address] = AddressRouter()
     return personal_routers[address].handle_bot_interaction()
 
 
