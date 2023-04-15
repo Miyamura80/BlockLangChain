@@ -99,7 +99,7 @@ def get_agent():
     Thought: Should I use a tool?{agent_scratchpad}"""
 
     memory = ConversationBufferMemory(
-        memory_key="chat_history",  # return_messages=True,
+        # memory_key="chat_history",  # return_messages=True,
         input_key="input",
         output_key="output",
         ai_prefix="AI",
@@ -113,18 +113,6 @@ def get_agent():
         verbose=True,
         memory=memory,
         return_intermediate_steps=False,
-        agent_kwargs={
-            "input_variables": [
-                "input",
-                "agent_scratchpad",
-                "chat_history",
-                "current_time",
-                "language",
-            ],
-            # "prefix": PREFIX,
-            "format_instructions": INSTRUCTIONS,
-            # "suffix": SUFFIX,
-        },
     )
     agent.agent.llm_chain.verbose = True
     return agent, memory
