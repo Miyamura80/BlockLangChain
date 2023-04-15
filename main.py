@@ -3,14 +3,16 @@ from web3 import Web3
 from flask_cors import CORS
 from web3 import Web3, exceptions
 import configparser
+import os
 
 # Secrets
-INFURA_API_TOKEN = ""
-env_config = configparser.ConfigParser()
-env_config.read("config.ini")
-if env_config["DEFAULT"]["INFURA_API_TOKEN"]:
-    INFURA_API_TOKEN = env_config["DEFAULT"]["INFURA_API_TOKEN"]
+# INFURA_API_TOKEN = ""
+# env_config = configparser.ConfigParser()
+# env_config.read("config.ini")
+# if env_config["DEFAULT"]["INFURA_API_TOKEN"]:
+#     INFURA_API_TOKEN = env_config["DEFAULT"]["INFURA_API_TOKEN"]
 
+INFURA_API_TOKEN = os.getenv("INFURA_API_TOKEN")
 
 app = Flask(__name__)
 CORS(app)
