@@ -19,13 +19,12 @@ CORS(app)
 w3 = Web3(Web3.HTTPProvider(f"https://goerli.infura.io/v3/{INFURA_API_TOKEN}"))
 
 
-@app.route('/api/message', methods=['POST'])
+@app.route("/api/message", methods=["POST"])
 def handle_chat():
     data = request.get_json()
     print(data)
-    text = data['text']
+    text = data["text"]
     return jsonify(text=text)
-
 
 
 # @app.route('/api/get_nonce', methods=['POST'])
@@ -44,5 +43,5 @@ def handle_chat():
 #         print(e)
 #         return jsonify({"error": str(e)}), 500
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     app.run(debug=True)
