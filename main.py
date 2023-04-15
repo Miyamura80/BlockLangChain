@@ -47,9 +47,14 @@ class AddressRouter:
 
     def handle_bot_interaction(self):
         data = request.get_json()
-        query = data["text"]
+        chatSession = data["chatSession"]
+        full_chat_list = chatSession.split(",")
+        if len(chatSession) > 0:
+            query = full_chat_list[0]
+        else:
+            query = ""
         response = self.bot(query)
-        return jsonify(text=response)
+        return jsonify(text=response, session=chatSession)
 
 
 personal_routers = {}
