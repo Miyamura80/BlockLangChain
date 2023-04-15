@@ -57,7 +57,7 @@ const AddressMessage = ({ address }: { address: string }) => {
     const sdk = new FusionSDK({
       url: "https://fusion.1inch.io",
       network: 1,
-      blockchainProvider: new Web3ProviderConnector(signer),
+      blockchainProvider: new Web3ProviderConnector(signer as any),
     });
 
     sdk
