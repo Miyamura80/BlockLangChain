@@ -29,7 +29,16 @@ const AddressMessage = ({ address }: { address: string }) => {
     checkIsErc20();
   }, []);
 
-  return <div className={clsx("mr-2", isErc20 && "text-blue")}>{address}</div>;
+  return (
+    <div
+      className={clsx(
+        "mr-2",
+        isErc20 && "bg-gray-200 rounded-lg px-1 text-black cursor-pointer"
+      )}
+    >
+      {address} {isErc20 ? "(token)" : ""}
+    </div>
+  );
 };
 
 export const Message = ({
@@ -56,11 +65,13 @@ export const Message = ({
           : "bg-slate-300 text-black"
       }`}
     >
-      {text.map(({ isAddress, text }) =>
+      {text.map(({ isAddress, text }, index) =>
         isAddress ? (
-          <AddressMessage address={text} />
+          <AddressMessage address={text} key={index} />
         ) : (
-          <div className={"mr-2"}>{text}</div>
+          <div className={"mr-2"} key={index}>
+            {text}
+          </div>
         )
       )}
     </div>

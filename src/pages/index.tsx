@@ -22,6 +22,7 @@ type ChatSession = string[]
 
 declare global {
   interface Window {
+    // @ts-ignore
     ethereum: any;
   }
 }
@@ -130,6 +131,8 @@ export default function Home() {
     if (e.key === 'Enter' && input.trim() !== '') {
       // Add your own message to the chat
       setMessages([...messages, { sender: 'self', text: input.trim() }]);
+
+      // @ts-ignore
       setChatSession([input.trim(), ...chatSession]);  
     }
   };
