@@ -14,7 +14,6 @@ type MessageType = {
 
 
 export default function Home() {
-  const [inputValue, setInputValue] = useState("");
   const [messages, setMessages] = useState<MessageType[]>([]);
   const [input, setInput] = useState<string>('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -41,7 +40,7 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>Chat Interface with Next.js and Tailwind CSS</title>
+        <title>BlockLangChain</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
   
@@ -51,6 +50,8 @@ export default function Home() {
             <h1 className="text-4xl font-bold text-center mb-4">
               Chat Interface
             </h1>
+
+            {/* Messages */}
             <div className="overflow-y-auto h-72 mb-4">
               {messages.map((message, index) => (
                 <div
@@ -61,27 +62,14 @@ export default function Home() {
                       : 'justify-start items-start'
                   }`}
                 >
+
+
                   <div
-                    className={`w-12 h-12 rounded-full overflow-hidden ${
+                    className={`rounded-lg px-4 py-2 mx-2 ${
                       message.sender === 'self'
-                        ? 'border-r-6 border-transparent'
-                        : 'border-l-6 border-transparent'
+                        ? 'bg-blue-500 text-white'
+                        : 'bg-slate-300 text-black'
                     }`}
-                  >
-                    <img
-                      src={`/images/${
-                        message.sender === 'self' ? 'self' : 'other'
-                      }.jpg`}
-                      alt={`${message.sender} profile`}
-                      className="object-cover w-full h-full"
-                    />
-                  </div>
-                  <div
-                    className={`bg-${
-                      message.sender === 'self' ? 'blue-500' : 'gray-300'
-                    } text-${
-                      message.sender === 'self' ? 'white' : 'black'
-                    } rounded-lg px-4 py-2 mx-2`}
                   >
                     {message.text}
                   </div>
@@ -89,10 +77,12 @@ export default function Home() {
               ))}
               <div ref={messagesEndRef}></div>
             </div>
+
+            {/* Chat area */}
             <div className="border-t border-gray-300 pt-4">
               <input
                 type="text"
-                className="w-full px-4 py-2 bg-gray-200 rounded-lg focus:outline-none focus:bg-white"
+                className="w-full px-4 py-2 bg-gray-200 rounded-lg focus:outline-none focus:bg-gray-500"
                 placeholder="Type your message here"
                 value={input}
                 onChange={handleInput}
