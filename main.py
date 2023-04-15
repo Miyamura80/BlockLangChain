@@ -14,7 +14,8 @@ w3 = Web3(Web3.HTTPProvider(f"https://goerli.infura.io/v3/{INFURA_API_TOKEN}"))
 
 @app.before_first_request
 def create_session():
-    session["conversation"] = []
+    if "conversation" not in session:
+        session["conversation"] = []
 
 
 @app.route("/api/message", methods=["POST"])
