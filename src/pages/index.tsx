@@ -7,6 +7,7 @@ import { ethers } from 'ethers';
 import { IDKitWidget } from '@worldcoin/idkit'
 import type { ISuccessResult } from "@worldcoin/idkit";
 import dynamic from 'next/dynamic';
+import { Message } from '@/components/Message';
 
 
 const inter = Inter({ subsets: ['latin'] })
@@ -15,8 +16,6 @@ type MessageType = {
   sender: 'self' | 'other';
   text: string;
 };
-
-type ChatSession = string[]
 
 declare global {
   interface Window {
@@ -28,8 +27,6 @@ export default function Home() {
   const [messages, setMessages] = useState<MessageType[]>([]);
   const [input, setInput] = useState<string>('');
   const [metamaskAddr, setMetamaskAddr] = useState<string>('Not connected to wallet');
-  const [chatSession, setChatSession] = useState<ChatSession>([]);
-
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -37,10 +34,6 @@ export default function Home() {
   };
 
   useEffect(scrollToBottom, [messages]);
-
-  const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setInput(e.target.value);
-  };
 
   const connectMetaMask = async () => {
     if (typeof window.ethereum !== 'undefined') {
@@ -68,44 +61,10 @@ export default function Home() {
     }
   };
 
-  
-
-  const sendChatSession = async (chatSessionString: string) => {
-    // Make API call to Flask backend
-    const response = await fetch('http://localhost:5000/api/message', {  // Update the URL
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ chatSession: chatSessionString}),
-    });
-
-    if (response.ok) {
-      const data = await response.json();
-
-      // Connect to MetaMask Wallet
-      if(data.text.toLowerCase() === 'connect'){
-        connectMetaMask();
-      }        
-
-      // Add Flask backend response to the chat as 'other'
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        { sender: 'other', text: data.text },
-      ]);
-    } else {
-      console.error('Error while sending message to the backend');
-    }
-    setInput('');
-  };
-
   const handleKeyDown = async (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && input.trim() !== '') {
       // Add your own message to the chat
       setMessages([...messages, { sender: 'self', text: input.trim() }]);
-      setChatSession([input.trim(), ...chatSession]);  
-    }
-  };
   
       // Make API call to Flask backend
       const response = await fetch('https://backend-python-production.up.railway.app/api/message', {  // Update the URL
@@ -124,12 +83,18 @@ export default function Home() {
           connectMetaMask();
         }        
 
-    // Call the API with the chatSessionString
-    if(chatSessionString.length > 0){
-      sendChatSession(chatSessionString);
+        // Add Flask backend response to the chat as 'other'
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          { sender: 'other', text: data.text },
+        ]);
+      } else {
+        console.error('Error while sending message to the backend');
+      }
+  
+      setInput('');
     }
-    
-  }, [chatSession]);
+  };
 
   const IDKitWidget = dynamic(() => import('@worldcoin/idkit').then(mod => mod.IDKitWidget), { ssr: false })
 
@@ -162,27 +127,9 @@ export default function Home() {
             {/* Messages */}
             <div className="overflow-y-auto h-72 mb-4">
               {messages.map((message, index) => (
-                <div
-                  key={index}
-                  className={`flex mb-4 ${
-                    message.sender === 'self'
-                      ? 'justify-end items-end'
-                      : 'justify-start items-start'
-                  }`}
-                >
-
-
-                  <div
-                    className={`rounded-lg px-4 py-2 mx-2 ${
-                      message.sender === 'self'
-                        ? 'bg-blue-500 text-white'
-                        : 'bg-slate-300 text-black'
-                    }`}
-                  >
-                    {message.text}
-                  </div>
-                </div>
+                <Message message={message} key={index}/>
               ))}
+
               <div ref={messagesEndRef}></div>
             </div>
 
@@ -193,7 +140,7 @@ export default function Home() {
                 className="w-full px-4 py-2 bg-gray-200 rounded-lg focus:outline-none focus:bg-gray-500"
                 placeholder="Type your message here"
                 value={input}
-                onChange={handleInput}
+                onChange={e => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
               />
             </div>
@@ -202,6 +149,7 @@ export default function Home() {
             <div className="border-t border-gray-300 pt-4 text-black"> 
                   {metamaskAddr}
             </div>
+
             <IDKitWidget
               action="test-action-eito"
               onSuccess={onSuccess}
