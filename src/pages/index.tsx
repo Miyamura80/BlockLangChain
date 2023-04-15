@@ -86,7 +86,7 @@ export default function Home() {
   };
 
   
-  const USE_AI = true;
+  const USE_AI = false;
 
   const sendChatSession = async (chatSessionString: string, recentString: string) => {
     if (recentString.toLowerCase() === 'reset') {
