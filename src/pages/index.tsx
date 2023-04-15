@@ -16,6 +16,7 @@ type MessageType = {
 export default function Home() {
   const [messages, setMessages] = useState<MessageType[]>([]);
   const [input, setInput] = useState<string>('');
+  const [metamaskAddr, setMetamaskAddr] = useState<string>('Not connected to wallet');
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -44,6 +45,7 @@ export default function Home() {
           ...prevMessages,
           { sender: 'other', text: `Connected to ${accounts[0]}` },
         ]);
+        setMetamaskAddr(`Connected to: ${accounts[0]}`);
       } catch (error) {
         // Handle errors that occurred during the connection process
         console.error('Error connecting MetaMask wallet:', error.message);
@@ -141,6 +143,11 @@ export default function Home() {
                 onChange={handleInput}
                 onKeyDown={handleKeyDown}
               />
+            </div>
+
+            {/* MetaMask Address */}
+            <div className="border-t border-gray-300 pt-4 text-black"> 
+                  {metamaskAddr}
             </div>
           </div>
           <div className="mt-8 text-center">
