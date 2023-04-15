@@ -3,7 +3,7 @@ from web3 import Web3
 from flask_cors import CORS
 from web3 import Web3
 import os
-from src.backend_server import get_agent
+from backend.src.backend_server import get_agent
 from datetime import datetime as dt
 
 INFURA_API_TOKEN = os.getenv("INFURA_API_TOKEN")
