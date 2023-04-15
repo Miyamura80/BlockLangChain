@@ -13,11 +13,10 @@ INFURA_API_TOKEN = ""
 OPENAI_API_TOKEN = ""
 env_config = configparser.ConfigParser()
 env_config.read("config.ini")
-if env_config["DEFAULT"]["INFURA_API_TOKEN"]:
-    INFURA_API_TOKEN = env_config["DEFAULT"]["INFURA_API_TOKEN"]
 
-if env_config["DEFAULT"]["OPENAI_API_TOKEN"]:
-    OPENAI_API_TOKEN = env_config["DEFAULT"]["OPENAI_API_TOKEN"]
+INFURA_API_TOKEN = os.getenv("INFURA_API_TOKEN")
+OPENAI_API_TOKEN = os.getenv("OPENAI_API_TOKEN")
+
 
 openai.api_key = OPENAI_API_TOKEN
 
