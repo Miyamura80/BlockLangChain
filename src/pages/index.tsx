@@ -7,17 +7,14 @@ import { ethers } from 'ethers';
 import { IDKitWidget } from '@worldcoin/idkit'
 import type { ISuccessResult } from "@worldcoin/idkit";
 import dynamic from 'next/dynamic';
-<<<<<<< HEAD
 // import { Chat } from "@pushprotocol/uiweb";
 // import { ITheme } from '@pushprotocol/uiweb';
 import MetaMaskSDK from '@metamask/sdk';
 // import { Linking } from 'react-native';
 
-=======
 import { Message } from '@/components/Message';
 import { useAccount, useConnect } from 'wagmi';
 import { InjectedConnector } from 'wagmi/connectors/injected'
->>>>>>> c6173715f90d62e0458852d398a36c4af2ce9a2d
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -31,20 +28,12 @@ type MessageType = {
 
 type ChatSession = string[]
 
-<<<<<<< HEAD
-// declare global {
-//   interface Window {
-//     ethereum: any;
-//   }
-// }
-=======
 declare global {
   interface Window {
     // @ts-ignore
     ethereum: any;
   }
 }
->>>>>>> c6173715f90d62e0458852d398a36c4af2ce9a2d
 
 export default function Home() {
   const { connect } = useConnect({
@@ -55,17 +44,11 @@ export default function Home() {
   const [metamaskAddr, setMetamaskAddr] = useState<string>('Not connected to wallet');
   const [chatSession, setChatSession] = useState<ChatSession>([]);
   const [language, setLanguage] = useState<string>('english');
-<<<<<<< HEAD
-
-  /* Chat Scroll Screen */
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-=======
   const { address, isConnected } = useAccount();
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   console.log("ADDRESS", address)
 
->>>>>>> c6173715f90d62e0458852d398a36c4af2ce9a2d
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
