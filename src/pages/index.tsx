@@ -37,7 +37,6 @@ export default function Home() {
   const [chatSession, setChatSession] = useState<ChatSession>([]);
   const [language, setLanguage] = useState<string>('english');
   const { address, isConnected } = useAccount();
-  const [chatSession, setChatSession] = useState([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   console.log("ADDRESS", address)
