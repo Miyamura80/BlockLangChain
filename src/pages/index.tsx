@@ -8,7 +8,6 @@ import { IDKitWidget } from '@worldcoin/idkit'
 import type { ISuccessResult } from "@worldcoin/idkit";
 import dynamic from 'next/dynamic';
 
-
 const inter = Inter({ subsets: ['latin'] })
 
 type MessageType = {
@@ -42,6 +41,24 @@ export default function Home() {
     setInput(e.target.value);
   };
 
+  const resetMemory = async () => {
+    // Make API call to Flask backend
+    const response = await fetch('http://localhost:5000/api/reinitialise/69420', {  // Update the URL
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: "",
+    });
+
+    if (response.ok) {
+      setChatSession([]);
+    } else {
+      console.error('Error while sending message to the backend');
+    }
+    setInput('');
+  }
+
   const connectMetaMask = async () => {
     if (typeof window.ethereum !== 'undefined') {
       try {
@@ -69,10 +86,18 @@ export default function Home() {
   };
 
   
+  const USE_AI = true;
 
-  const sendChatSession = async (chatSessionString: string) => {
+  const sendChatSession = async (chatSessionString: string, recentString: string) => {
+    if (recentString.toLowerCase() === 'reset') {
+      console.log("Reset");
+      resetMemory();
+    }
+
+
+    const api_sign = !USE_AI ? 'http://localhost:5000/api/message': 'http://localhost:5000/api/bot_interaction/69420';
     // Make API call to Flask backend
-    const response = await fetch('http://localhost:5000/api/message', {  // Update the URL
+    const response = await fetch(api_sign, {  // Update the URL
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -82,12 +107,10 @@ export default function Home() {
 
     if (response.ok) {
       const data = await response.json();
-
       // Connect to MetaMask Wallet
       if(data.text.toLowerCase() === 'connect'){
         connectMetaMask();
-      }        
-
+      } 
       // Add Flask backend response to the chat as 'other'
       setMessages((prevMessages) => [
         ...prevMessages,
@@ -110,12 +133,10 @@ export default function Home() {
   // Triggers after handleKeyDown() updates chatSessionString
   useEffect(() => {
     const chatSessionString: string = chatSession.join(', ');
-
     // Call the API with the chatSessionString
     if(chatSessionString.length > 0){
-      sendChatSession(chatSessionString);
+      sendChatSession(chatSessionString, chatSession[0]);
     }
-    
   }, [chatSession]);
 
   const IDKitWidget = dynamic(() => import('@worldcoin/idkit').then(mod => mod.IDKitWidget), { ssr: false })
