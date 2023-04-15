@@ -337,6 +337,7 @@ export default function Home() {
           </div>
         </div>
       </div>
+      {/* Commenting this component out, because this causes the frontend to break on 2nd reload */}
       {/* <Chat
    account="0xB4A65eb99011C749cac3368E4bC8896d4178274c" //user address
    signer={sign}
