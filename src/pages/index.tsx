@@ -92,6 +92,7 @@ export default function Home() {
     if (recentString.toLowerCase() === 'reset') {
       console.log("Reset");
       resetMemory();
+      return;
     }
 
 
