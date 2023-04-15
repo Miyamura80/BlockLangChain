@@ -66,17 +66,22 @@ class AddressRouter:
         self.agent, self.memory = get_agent()
 
     def bot(self, prompt):
-        res = self.agent(
-            {
-                "input": prompt,
-                "current_time": dt.now().strftime("%Y-%m-%d %H:%M:%S"),
-                "language": "English",
-            }
-        )
+        try:
+            res = self.agent(
+                {
+                    "input": prompt,
+                    "current_time": dt.now().strftime("%Y-%m-%d %H:%M:%S"),
+                    "language": "English",
+                }
+            )
+            result = res["output"]
+        except:
+            result = "Unfortunately, my database doesn't have this information. You might consider " \
+                     "doing a goolge search."
 
         if len(self.memory.buffer) > 2000:
             self.memory.chat_memory.messages.pop(0)
-        return res["output"]
+        return result
 
     def handle_bot_interaction(self):
         data = request.get_json()
