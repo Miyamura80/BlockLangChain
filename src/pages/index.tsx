@@ -7,6 +7,11 @@ import { ethers } from 'ethers';
 import { IDKitWidget } from '@worldcoin/idkit'
 import type { ISuccessResult } from "@worldcoin/idkit";
 import dynamic from 'next/dynamic';
+// import { Chat } from "@pushprotocol/uiweb";
+// import { ITheme } from '@pushprotocol/uiweb';
+import MetaMaskSDK from '@metamask/sdk';
+// import { Linking } from 'react-native';
+
 import { Message } from '@/components/Message';
 import { useAccount, useConnect } from 'wagmi';
 import { InjectedConnector } from 'wagmi/connectors/injected'
@@ -47,19 +52,17 @@ export default function Home() {
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
-
   useEffect(scrollToBottom, [messages]);
 
+  /* Chat Language Change */
   const changeLanguage = (e:any) => {
     setLanguage(e.target.id);
   };
-
   const buttonClass = (lang:string) => {
     const baseClass =
       'hs-tab-active:bg-white hs-tab-active:text-gray-700 hs-tab-active:dark:bg-gray-800 hs-tab-active:dark:text-gray-400 dark:hs-tab-active:bg-gray-800 py-3 px-4 inline-flex items-center gap-2 bg-transparent text-sm text-gray-500 hover:text-gray-700 font-medium rounded-md hover:hover:text-blue-600 dark:text-gray-400 dark:hover:text-white';
     return language === lang ? `${baseClass} bg-white dark:bg-gray-800` : baseClass;
   };
-
   useEffect(() => {
     if (language) {
       fetch(`http://localhost:5000/api/set_language/${language}`, {
@@ -77,13 +80,12 @@ export default function Home() {
           console.error('There was a problem with the fetch operation:', error);
         });
     }
-  }, [language]);
-
-
+  }, [language]);  
   const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInput(e.target.value);
   };
 
+  /* Chat Session Memory Handling */
   const resetMemory = async () => {
     // Make API call to Flask backend
     const response = await fetch('https://backend-python-production.up.railway.app/api/reinitialise/69420', {  // Update the URL
@@ -93,7 +95,6 @@ export default function Home() {
       },
       body: "",
     });
-
     if (response.ok) {
       setChatSession([]);
     } else {
@@ -101,6 +102,30 @@ export default function Home() {
     }
     setInput('');
   }
+
+  /* Wallet Stuff */
+  const options = {
+    injectProvider: false,
+    dappMetadata: {
+      name: 'BlangChain', // The name of your dapp.
+      url: 'https://mydapp.com', // The URL of your website.
+    }
+  };
+
+
+  useEffect(() => {
+    const MMSDK = new MetaMaskSDK(options);
+    const ethereum = MMSDK.getProvider();
+    
+    // provider = ethers.getDefaultProvider()
+    // rovider = new ethers.BrowserProvider(window.ethereum);
+    // const provider = new ethers.providers.Web3Provider(web3.currentProvider)
+    const provider = new ethers.providers.Web3Provider(ethereum);
+    // provider = new ethers.BrowserProvider(window.ethereum)
+    const signer = provider.getSigner()
+  
+  }, []);
+
 
   const connectMetaMask = async () => {
     console.log("connect")
@@ -130,7 +155,7 @@ export default function Home() {
   };
 
   
-  const USE_AI = true;
+  const USE_AI = false;
 
   const sendChatSession = async (chatSessionString: string, recentString: string) => {
     if (recentString.toLowerCase() === 'reset') {
@@ -221,6 +246,7 @@ export default function Home() {
 
 
         <div className="relative w-full max-w-2xl mx-auto">
+          {/* White chat overlay */}
           <div className="bg-white shadow-lg rounded-2xl p-6">
             <h1 className="text-4xl font-bold text-center mb-4">
               Chat Interface
@@ -268,7 +294,7 @@ export default function Home() {
             </div>
 
             {/* MetaMask Address */}
-            <div className="border-t border-gray-300 pt-4 text-black"> 
+            <div className="border-t border-gray-300 py-4 text-black"> 
                   {metamaskAddr}
             </div>
 
@@ -290,37 +316,36 @@ export default function Home() {
                 </IDKitWidget>
                 
                 <div className="flex px-4">
-      <div className="flex bg-gray-100 hover:bg-gray-200 rounded-lg transition p-1 dark:bg-gray-700 dark:hover:bg-gray-600">
-        <nav className="flex space-x-2" aria-label="Tabs" role="tablist">
-          <button
-            type="button"
-            className={buttonClass('english')}
-            id="english"
-            onClick={changeLanguage}
-          >
-            ENGLISH
-          </button>
-          <button
-            type="button"
-            className={buttonClass('japanese')}
-            id="japanese"
-            onClick={changeLanguage}
-          >
-            日本語
-          </button>
-          <button
-            type="button"
-            className={buttonClass('bulgarian')}
-            id="bulgarian"
-            onClick={changeLanguage}
-          >
-            български
-          </button>
-        </nav>
-      </div>
-    </div>
+                  <div className="flex bg-gray-100 hover:bg-gray-200 rounded-lg transition p-1 dark:bg-gray-700 dark:hover:bg-gray-600">
+                    <nav className="flex space-x-2" aria-label="Tabs" role="tablist">
+                      <button
+                        type="button"
+                        className={buttonClass('english')}
+                        id="english"
+                        onClick={changeLanguage}
+                      >
+                        ENGLISH
+                      </button>
+                      <button
+                        type="button"
+                        className={buttonClass('japanese')}
+                        id="japanese"
+                        onClick={changeLanguage}
+                      >
+                        日本語
+                      </button>
+                      <button
+                        type="button"
+                        className={buttonClass('bulgarian')}
+                        id="bulgarian"
+                        onClick={changeLanguage}
+                      >
+                        български
+                      </button>
+                    </nav>
+                  </div>
+                </div>
                 
-              
               </div>
             </div>
             
@@ -331,6 +356,12 @@ export default function Home() {
           </div>
         </div>
       </div>
+      {/* <Chat
+   account="0xB4A65eb99011C749cac3368E4bC8896d4178274c" //user address
+   signer={signer}
+   supportAddress="0xcC227A599c10A39265Fda98beC977aee99adA5d1" //support address
+   env="prod"
+ /> */}
     </>
   );
   
