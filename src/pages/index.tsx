@@ -166,8 +166,8 @@ export default function Home() {
 
     let api_sign = '';
 
-
-    if (process.env.DEPLOYMENT_ENV == "TRUE") {
+    console.log(process.env.DEPLOYMENT_ENV)
+    if (true) {
       api_sign = !USE_AI ? 'https://blocklangchain-production.up.railway.app/api/message': 'https://blocklangchain-production.up.railway.app/api/bot_interaction/69420';
     } else {
       api_sign = !USE_AI ? 'http://localhost:5000/api/message': 'http://localhost:5000/api/bot_interaction/69420';
