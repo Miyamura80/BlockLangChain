@@ -1,8 +1,12 @@
 import Image from 'next/image'
 import { Inter } from 'next/font/google'
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
+import { ethers } from 'ethers';
+import { IDKitWidget } from '@worldcoin/idkit'
+import type { ISuccessResult } from "@worldcoin/idkit";
+import dynamic from 'next/dynamic';
 
 
 const inter = Inter({ subsets: ['latin'] })
@@ -12,10 +16,16 @@ type MessageType = {
   text: string;
 };
 
+declare global {
+  interface Window {
+    ethereum: any;
+  }
+}
 
 export default function Home() {
   const [messages, setMessages] = useState<MessageType[]>([]);
   const [input, setInput] = useState<string>('');
+  const [metamaskAddr, setMetamaskAddr] = useState<string>('Not connected to wallet');
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -26,6 +36,32 @@ export default function Home() {
 
   const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInput(e.target.value);
+  };
+
+  const connectMetaMask = async () => {
+    if (typeof window.ethereum !== 'undefined') {
+      try {
+        // Request user to connect MetaMask wallet
+        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+  
+        // You can now use the connected account for further actions, e.g., getting the account balance
+        // const provider = new ethers.providers.Web3Provider(window.ethereum);
+        // const balance = await provider.getBalance(accounts[0]);
+        // console.log("Account balance:", ethers.utils.formatEther(balance));
+        
+        // Display connected account address in the chat
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          { sender: 'other', text: `Connected to ${accounts[0]}` },
+        ]);
+        setMetamaskAddr(`Connected to: ${accounts[0]}`);
+      } catch (error:any) {
+        // Handle errors that occurred during the connection process
+        console.error('Error connecting MetaMask wallet:', error.message);
+      }
+    } else {
+      console.error('MetaMask not detected in the browser');
+    }
   };
 
   const handleKeyDown = async (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -44,6 +80,12 @@ export default function Home() {
   
       if (response.ok) {
         const data = await response.json();
+
+        // Connect to MetaMask Wallet
+        if(data.text.toLowerCase() === 'connect'){
+          connectMetaMask();
+        }        
+
         // Add Flask backend response to the chat as 'other'
         setMessages((prevMessages) => [
           ...prevMessages,
@@ -57,6 +99,18 @@ export default function Home() {
     }
   };
 
+  const IDKitWidget = dynamic(() => import('@worldcoin/idkit').then(mod => mod.IDKitWidget), { ssr: false })
+
+  const handleProof = useCallback((result: ISuccessResult) => {
+		return new Promise<void>((resolve) => {
+			setTimeout(() => resolve(), 3000);
+			// NOTE: Example of how to decline the verification request and show an error message to the user
+		});
+	}, []);
+
+	const onSuccess = (result: ISuccessResult) => {
+		console.log(result);
+	};
 
   
   return (
@@ -111,6 +165,26 @@ export default function Home() {
                 onKeyDown={handleKeyDown}
               />
             </div>
+
+            {/* MetaMask Address */}
+            <div className="border-t border-gray-300 pt-4 text-black"> 
+                  {metamaskAddr}
+            </div>
+            <IDKitWidget
+              action="test-action-eito"
+              onSuccess={onSuccess}
+              handleVerify={handleProof}
+              app_id="app_staging_7dceb87587ebc8f52332d91f9a6e5280"
+              // walletConnectProjectId="get_this_from_walletconnect_portal"
+            >
+              {({ open }) => 
+                <button onClick={open} 
+                        type="button" 
+                        className="rounded-lg border border-gray-700 bg-gray-700 px-5 py-2.5 text-center text-sm font-medium text-white shadow-sm transition-all hover:border-gray-900 hover:bg-gray-900 focus:ring focus:ring-gray-200 disabled:cursor-not-allowed disabled:border-gray-300 disabled:bg-gray-300">Verify Humanity</button>
+
+              }
+            </IDKitWidget>
+            
           </div>
           <div className="mt-8 text-center">
           </div>
