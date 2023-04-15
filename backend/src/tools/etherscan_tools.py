@@ -5,7 +5,7 @@ from langchain.chat_models import ChatOpenAI
 
 
 class EtherscanABIQuery(SyncTool):
-    name = "etherscan_abi_query"
+    name = "ETHERSCAN_ABI_QUERY"
     description = (
         "This is a tool that queries etherscan to get the abi of a blockchain smart contract. "
         "This is used to simplify the interactions with the chain using natural language.\n"
