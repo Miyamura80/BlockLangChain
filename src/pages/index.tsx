@@ -7,7 +7,6 @@ import { ethers } from 'ethers';
 import { IDKitWidget } from '@worldcoin/idkit'
 import type { ISuccessResult } from "@worldcoin/idkit";
 import dynamic from 'next/dynamic';
-import LanguageTabs from './languagetab';
 import { Message } from '@/components/Message';
 import { useAccount, useConnect } from 'wagmi';
 import { InjectedConnector } from 'wagmi/connectors/injected'
