@@ -41,6 +41,24 @@ export default function Home() {
     setInput(e.target.value);
   };
 
+  const resetMemory = async () => {
+    // Make API call to Flask backend
+    const response = await fetch('http://localhost:5000/api/reinitialise/69420', {  // Update the URL
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: "",
+    });
+
+    if (response.ok) {
+      setChatSession([]);
+    } else {
+      console.error('Error while sending message to the backend');
+    }
+    setInput('');
+  }
+
   const connectMetaMask = async () => {
     if (typeof window.ethereum !== 'undefined') {
       try {
@@ -68,33 +86,47 @@ export default function Home() {
   };
 
   
-      // Make API call to Flask backend
-      const response = await fetch('http://localhost:5000/api/message', {  // Update the URL
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ text: input.trim() }),
-      });
-  
-      if (response.ok) {
-        const data = await response.json();
+  const USE_AI = false;
 
-        // Connect to MetaMask Wallet
-        if(data.text.toLowerCase() === 'connect'){
-          connectMetaMask();
-        }        
+  const sendChatSession = async (chatSessionString: string, recentString: string) => {
+    if (recentString.toLowerCase() === 'reset') {
+      console.log("Reset");
+      resetMemory();
+    }
 
-        // Add Flask backend response to the chat as 'other'
-        setMessages((prevMessages) => [
-          ...prevMessages,
-          { sender: 'other', text: data.text },
-        ]);
-      } else {
-        console.error('Error while sending message to the backend');
-      }
-  
-      setInput('');
+
+    const api_sign = !USE_AI ? 'http://localhost:5000/api/message': 'http://localhost:5000/api/bot_interaction/69420';
+    // Make API call to Flask backend
+    const response = await fetch(api_sign, {  // Update the URL
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ chatSession: chatSessionString}),
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      // Connect to MetaMask Wallet
+      if(data.text.toLowerCase() === 'connect'){
+        connectMetaMask();
+      } 
+      // Add Flask backend response to the chat as 'other'
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        { sender: 'other', text: data.text },
+      ]);
+    } else {
+      console.error('Error while sending message to the backend');
+    }
+    setInput('');
+  };
+
+  const handleKeyDown = async (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && input.trim() !== '') {
+      // Add your own message to the chat
+      setMessages([...messages, { sender: 'self', text: input.trim() }]);
+      setChatSession([input.trim(), ...chatSession]);  
     }
   };
   
