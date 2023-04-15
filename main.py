@@ -17,6 +17,7 @@ INFURA_API_TOKEN = os.getenv("INFURA_API_TOKEN")
 app = Flask(__name__)
 CORS(app)
 
+
 # Connect to the Ethereum testnet (e.g., Rinkeby)
 w3 = Web3(Web3.HTTPProvider(f"https://goerli.infura.io/v3/{INFURA_API_TOKEN}"))
 
@@ -24,6 +25,7 @@ w3 = Web3(Web3.HTTPProvider(f"https://goerli.infura.io/v3/{INFURA_API_TOKEN}"))
 # create session on startup
 @app.before_first_request
 def create_session():
+    app.secret_key = os.environ.get("FLASK_SECRET_KEY")
     session["conversation"] = []
 
 
