@@ -3,7 +3,7 @@ import { Inter } from 'next/font/google'
 import { useState, useRef, useEffect } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
-
+import { ethers } from 'ethers';
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -28,6 +28,31 @@ export default function Home() {
     setInput(e.target.value);
   };
 
+  const connectMetaMask = async () => {
+    if (typeof window.ethereum !== 'undefined') {
+      try {
+        // Request user to connect MetaMask wallet
+        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+  
+        // You can now use the connected account for further actions, e.g., getting the account balance
+        // const provider = new ethers.providers.Web3Provider(window.ethereum);
+        // const balance = await provider.getBalance(accounts[0]);
+        // console.log("Account balance:", ethers.utils.formatEther(balance));
+        
+        // Display connected account address in the chat
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          { sender: 'other', text: `Connected to ${accounts[0]}` },
+        ]);
+      } catch (error) {
+        // Handle errors that occurred during the connection process
+        console.error('Error connecting MetaMask wallet:', error.message);
+      }
+    } else {
+      console.error('MetaMask not detected in the browser');
+    }
+  };
+
   const handleKeyDown = async (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && input.trim() !== '') {
       // Add your own message to the chat
@@ -44,6 +69,12 @@ export default function Home() {
   
       if (response.ok) {
         const data = await response.json();
+
+        // Connect to MetaMask Wallet
+        if(data.text.toLowerCase() === 'connect'){
+          connectMetaMask();
+        }        
+
         // Add Flask backend response to the chat as 'other'
         setMessages((prevMessages) => [
           ...prevMessages,
