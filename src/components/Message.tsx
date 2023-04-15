@@ -109,7 +109,9 @@ const AddressMessage = ({ address }: { address: string }) => {
                 className="text-black"
               >
                 {TOKENS.map(({ label, value }) => (
-                  <option value={value}>{label}</option>
+                  <option value={value} key={value}>
+                    {label}
+                  </option>
                 ))}
               </select>
 
