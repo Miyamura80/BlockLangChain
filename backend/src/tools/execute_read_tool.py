@@ -14,8 +14,8 @@ class ExecuteReadTool(SyncTool):
         "We will call this tool as: <contract>;<function signature>;<arguments>. If we have multiple <arguments> "
         "they are comma separated.\n"
         "Example #1: 0x7D1AfA7B718fb893dB30A3aBc0Cfc608AaCfeBB0;name() -> string; \nOutput: Matic Token\n"
-        "Example #2: 0x7D1AfA7B718fb893dB30A3aBc0Cfc608AaCfeBB0;balanceOf(address owner) -> uint256;"
-        "0xcC227A599c10A39265Fda98beC977aee99adA5d1\n Output: 3124\n"
+        "Example #2: 0x6B175474E89094C44Da98b954EedeAC495271d0F;balanceOf(address owner) -> uint256;"
+        "0xcC227A599c10A39265Fda98beC977aee99adA5d1\n Output: 2343242398032\n"
         "the address we are interested in is 0xcC227A599c10A39265Fda98beC977aee99adA5d1. We use this tool to find the "
         "abi of 0x7D1AfA7B718fb893dB30A3aBc0Cfc608AaCfeBB0 in a natural language format.\n"
         "Example #3: We call this tool on a SINGLE contract address. Otherwise we fail."
@@ -23,14 +23,18 @@ class ExecuteReadTool(SyncTool):
 
     def _run(self, query: str) -> str:
         try:
-            chat = ChatOpenAI(temperature=0, model_name="gpt-3.5-turbo")
-            clean_query = chat.call_as_llm(f"Fit the {query} into the format described in {self.description}")
-
-            non_fixed_args = clean_query.split(';')
+            non_fixed_args = query.split(';')
+            if len(non_fixed_args) != 3:
+                chat = ChatOpenAI(temperature=0, model_name="gpt-3.5-turbo")
+                query = chat.call_as_llm(
+                    f"Fit the {query} into the format <contract address>;<function signature>;<arguments>. "
+                    "If we have multiple <arguments> they are comma separated."
+                )
+                non_fixed_args = query.split(';')
 
             if len(non_fixed_args) != 3:
                 return (
-                    f"Error in parsing {clean_query}: we expected a <contract>;<function signature>;<arguments> "
+                    f"Error in parsing {query}: we expected a <contract>;<function signature>;<arguments> "
                     f"format for the query. We got {len(non_fixed_args)} blocks instead of 3."
                 )
 
@@ -55,7 +59,7 @@ class ExecuteReadTool(SyncTool):
             contract_func = contract_web3_obj.functions[func_name]
         except Exception as e:
             return (
-                f"Couldn't parse the function name through the signature {signature_str}: {e}! "
+                f"Couldn't get the function {signature_str}: {e}! "
             )
 
         try:
