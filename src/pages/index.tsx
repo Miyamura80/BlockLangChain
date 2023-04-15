@@ -70,7 +70,7 @@ export default function Home() {
       setMessages([...messages, { sender: 'self', text: input.trim() }]);
   
       // Make API call to Flask backend
-      const response = await fetch('https://backend-python-production.up.railway.app', {  // Update the URL
+      const response = await fetch('https://backend-python-production.up.railway.app/api/message', {  // Update the URL
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
