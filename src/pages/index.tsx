@@ -13,11 +13,6 @@ import { InjectedConnector } from 'wagmi/connectors/injected'
 
 const inter = Inter({ subsets: ['latin'] })
 
-// if (process.env.hasOwnProperty('MY_ENV_VAR')) {
-//   // do something if the MY_ENV_VAR environment variable exists
-// } else {
-//   // do something else if the MY_ENV_VAR environment variable does not exist
-// }
 
 
 
@@ -145,9 +140,17 @@ export default function Home() {
     }
 
 
-    // const api_sign = !USE_AI ? 'http://localhost:5000/api/message': 'http://localhost:5000/api/bot_interaction/69420';
-    // setInput('');
-    const api_sign = !USE_AI ? 'https://backend-python-production.up.railway.app/api/message': 'https://backend-python-production.up.railway.app/api/bot_interaction/69420';
+
+    if (process.env.hasOwnProperty('DEPLOYMENT_ENV')) {
+      const api_sign = !USE_AI ? 'https://backend-python-production.up.railway.app/api/message': 'https://backend-python-production.up.railway.app/api/bot_interaction/69420';
+    } else {
+      const api_sign = !USE_AI ? 'http://localhost:5000/api/message': 'http://localhost:5000/api/bot_interaction/69420';
+      setInput('');
+      // do something else if the MY_ENV_VAR environment variable does not exist
+    }
+    
+
+    
     // Make API call to Flask backend
     const response = await fetch(api_sign, {  // Update the URL
       method: 'POST',
