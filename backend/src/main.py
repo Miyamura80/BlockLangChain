@@ -37,10 +37,6 @@ def translate_to_japanese(ai_output):
     return response.choices[0].text.strip()
 
 
-# Connect to the Ethereum testnet (e.g., Rinkeby)
-w3 = Web3(Web3.HTTPProvider(f"https://goerli.infura.io/v3/{INFURA_API_TOKEN}"))
-
-
 @app.route("/api/message", methods=["POST"])
 def handle_chat():
     data = request.get_json()
