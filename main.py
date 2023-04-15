@@ -37,7 +37,8 @@ def handle_chat():
     # console log the session
     print(session["conversation"])
 
-    return jsonify(text=text)
+    # return jsonify(text=text)
+    return jsonify(text=" ".join(session["conversation"]))
 
 
 # @app.route('/api/get_nonce', methods=['POST'])
