@@ -1,17 +1,16 @@
 from flask import Flask, request, jsonify, session
 from web3 import Web3
 from flask_cors import CORS
-from web3 import Web3
 import os
-from backend.src.backend_server import get_agent
+from backend_server import get_agent
 from datetime import datetime as dt
+from web3_config import w3
 
 INFURA_API_TOKEN = os.getenv("INFURA_API_TOKEN")
 
 app = Flask(__name__)
 CORS(app)
 app.secret_key = os.environ.get("GARBAGE_POINTER") or os.urandom(24)
-w3 = Web3(Web3.HTTPProvider(f"https://goerli.infura.io/v3/{INFURA_API_TOKEN}"))
 
 
 @app.route("/api/message", methods=["POST"])
