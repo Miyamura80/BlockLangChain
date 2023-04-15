@@ -7,19 +7,15 @@ import { ethers } from 'ethers';
 import { IDKitWidget } from '@worldcoin/idkit'
 import type { ISuccessResult } from "@worldcoin/idkit";
 import dynamic from 'next/dynamic';
-// import { Chat } from "@pushprotocol/uiweb";
-// import { ITheme } from '@pushprotocol/uiweb';
+import { Chat } from "@pushprotocol/uiweb";
+import { ITheme } from '@pushprotocol/uiweb';
 import MetaMaskSDK from '@metamask/sdk';
-// import { Linking } from 'react-native';
 
 import { Message } from '@/components/Message';
 import { useAccount, useConnect } from 'wagmi';
 import { InjectedConnector } from 'wagmi/connectors/injected'
 
 const inter = Inter({ subsets: ['latin'] })
-
-
-
 
 type MessageType = {
   sender: 'self' | 'other';
@@ -44,6 +40,7 @@ export default function Home() {
   const [metamaskAddr, setMetamaskAddr] = useState<string>('Not connected to wallet');
   const [chatSession, setChatSession] = useState<ChatSession>([]);
   const [language, setLanguage] = useState<string>('english');
+  const [sign, setSign] = useState<any>(null);
   const { address, isConnected } = useAccount();
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -123,6 +120,7 @@ export default function Home() {
     const provider = new ethers.providers.Web3Provider(ethereum);
     // provider = new ethers.BrowserProvider(window.ethereum)
     const signer = provider.getSigner()
+    setSign(signer)
   
   }, []);
 
@@ -191,12 +189,13 @@ export default function Home() {
       // Connect to MetaMask Wallet
       if(data.text.toLowerCase() === 'connect'){
         connectMetaMask();
-      } 
-      // Add Flask backend response to the chat as 'other'
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        { sender: 'other', text: data.text },
-      ]);
+      } else {
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          { sender: 'other', text: data.text },
+        ]);
+      }
+      
     } else {
       console.error('Error while sending message to the backend');
     }
@@ -301,10 +300,10 @@ export default function Home() {
             <div className="container mx-auto">
                 <div className="flex px-4"> 
                 <IDKitWidget
-                  action="test-action-eito"
+                  action="action-2"
                   onSuccess={onSuccess}
                   handleVerify={handleProof}
-                  app_id="app_staging_7dceb87587ebc8f52332d91f9a6e5280"
+                  app_id="app_ef14895653627d42090f3c56b28a9a69"
                   // walletConnectProjectId="get_this_from_walletconnect_portal"
                 >
                   {({ open }) => 
@@ -358,7 +357,7 @@ export default function Home() {
       </div>
       {/* <Chat
    account="0xB4A65eb99011C749cac3368E4bC8896d4178274c" //user address
-   signer={signer}
+   signer={sign}
    supportAddress="0xcC227A599c10A39265Fda98beC977aee99adA5d1" //support address
    env="prod"
  /> */}
