@@ -9,13 +9,13 @@ CORS(app)
 # Connect to the Ethereum testnet (e.g., Rinkeby)
 w3 = Web3(Web3.HTTPProvider('https://goerli.infura.io/v3/29ac942b8a18431c8c981c713a0a424a'))
 
-# @app.route('/')
-# def serve_index():
-#     return send_from_directory('.', 'index.html')
 
-@app.route('/')
-def index():
-    return "Hello, Flask!"
+@app.route('/api/message', methods=['POST'])
+def handle_chat():
+    data = request.get_json()
+    print(data)
+    text = data['text']
+    return jsonify(text=text)
 
 @app.route('/api/data')
 def get_data():

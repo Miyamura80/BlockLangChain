@@ -28,9 +28,31 @@ export default function Home() {
     setInput(e.target.value);
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = async (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && input.trim() !== '') {
+      // Add your own message to the chat
       setMessages([...messages, { sender: 'self', text: input.trim() }]);
+  
+      // Make API call to Flask backend
+      const response = await fetch('http://localhost:5000/api/message', {  // Update the URL
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ text: input.trim() }),
+      });
+  
+      if (response.ok) {
+        const data = await response.json();
+        // Add Flask backend response to the chat as 'other'
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          { sender: 'other', text: data.text },
+        ]);
+      } else {
+        console.error('Error while sending message to the backend');
+      }
+  
       setInput('');
     }
   };
