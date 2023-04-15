@@ -136,6 +136,7 @@ export default function Home() {
 
 
     const api_sign = !USE_AI ? 'http://localhost:5000/api/message': 'http://localhost:5000/api/bot_interaction/69420';
+    setInput('');
     // Make API call to Flask backend
     const response = await fetch(api_sign, {  // Update the URL
       method: 'POST',
@@ -159,7 +160,7 @@ export default function Home() {
     } else {
       console.error('Error while sending message to the backend');
     }
-    setInput('');
+    
   };
 
   const handleKeyDown = async (e: React.KeyboardEvent<HTMLInputElement>) => {
