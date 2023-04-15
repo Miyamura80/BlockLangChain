@@ -1,9 +1,15 @@
 from langchain import LLMMathChain
 from langchain.chat_models import ChatOpenAI
-from tools import ERC20Tool, ENSToOwnerAddressTool, EtherscanABIQuery, ExecuteReadTool, AirstackAITool
+from tools import (
+    ERC20Tool,
+    ENSToOwnerAddressTool,
+    EtherscanABIQuery,
+    ExecuteReadTool,
+    AirstackAITool,
+)
 
 from langchain.llms import OpenAI
-from langchain.agents import  Tool, initialize_agent
+from langchain.agents import Tool, initialize_agent
 from langchain.memory import ConversationBufferMemory
 from langchain.utilities import SerpAPIWrapper, PythonREPL
 import gradio as gr
@@ -22,35 +28,35 @@ tools = [
     Tool(
         name="WEB_SEARCH",
         func=search.run,
-        description="useful for finding information that isn't very clear or when you need to answer questions about current events or the current state of the world. Try asking this from time to time. \nUSE FOR FINDING CONTRACTS OF ENTITIES YOU DON'T KNOW!"
+        description="useful for finding information that isn't very clear or when you need to answer questions about current events or the current state of the world. Try asking this from time to time. \nUSE FOR FINDING CONTRACTS OF ENTITIES YOU DON'T KNOW!",
     ),
     Tool(
         name="BLOCKCHAIN_SEARCH",
         func=search.run,
         description=(
-                "This is a model that given a search like query, finds relevant information. However, it's specific for "
-                "blockchain use cases. It is particularly useful for finding contract addresses of people and protocols.\n"
-                "Example: run(what is the contract address of Uniswap router?) = 0xEf1c6E67703c7BD7107eed8303Fbe6EC2554BF6B"
-            )
+            "This is a model that given a search like query, finds relevant information. However, it's specific for "
+            "blockchain use cases. It is particularly useful for finding contract addresses of people and protocols.\n"
+            "Example: run(what is the contract address of Uniswap router?) = 0xEf1c6E67703c7BD7107eed8303Fbe6EC2554BF6B"
         ),
+    ),
     Tool(
         name="EVALUATE_MATH",
         func=llm_math_chain.run,
-        description="useful for when you need to answer questions about mathematically related topics\nUSE ONLY FOR MATH RELATED QUESTIONS!"
+        description="useful for when you need to answer questions about mathematically related topics\nUSE ONLY FOR MATH RELATED QUESTIONS!",
     ),
     Tool(
         name="PYTHON_REPL",
         func=python_repl.run,
-        description = "A Python shell. Use this to execute python commands. "
+        description="A Python shell. Use this to execute python commands. "
         "Input should be a valid python command. "
         "If you want to see the result, you should print it out "
-        "with `print(...)`."
+        "with `print(...)`.",
     ),
     ENSToOwnerAddressTool(),
     ERC20Tool(),
     EtherscanABIQuery(),
     ExecuteReadTool(),
-    AirstackAITool()
+    AirstackAITool(),
 ]
 
 tool_names = [tool.name for tool in tools]
@@ -89,20 +95,70 @@ Begin!
 Question: {input}
 Thought: Should I use a tool?{agent_scratchpad}"""
 
-memory = ConversationBufferMemory(memory_key="chat_history",# return_messages=True,
-                                  input_key="input", output_key='output', ai_prefix='AI', human_prefix='User')
+memory = ConversationBufferMemory(
+    memory_key="chat_history",  # return_messages=True,
+    input_key="input",
+    output_key="output",
+    ai_prefix="AI",
+    human_prefix="User",
+)
 
-agent = initialize_agent(tools,
-                         llm,
-                         agent="conversational-react-description",
-                         verbose=True,
-                         memory=memory,
-                         return_intermediate_steps=False,
-                         agent_kwargs={'input_variables': ['input', 'agent_scratchpad', 'chat_history', 'current_time', 'language'],
-                                       'prefix': PREFIX,
-                                       'format_instructions': INSTRUCTIONS,
-                                       'suffix': SUFFIX})
-agent.agent.llm_chain.verbose=True
+agent = initialize_agent(
+    tools,
+    llm,
+    agent="conversational-react-description",
+    verbose=True,
+    memory=memory,
+    return_intermediate_steps=False,
+    agent_kwargs={
+        "input_variables": [
+            "input",
+            "agent_scratchpad",
+            "chat_history",
+            "current_time",
+            "language",
+        ],
+        "prefix": PREFIX,
+        "format_instructions": INSTRUCTIONS,
+        "suffix": SUFFIX,
+    },
+)
+agent.agent.llm_chain.verbose = True
+
+
+memory = ConversationBufferMemory(
+    memory_key="chat_history",  # return_messages=True,
+    input_key="input",
+    output_key="output",
+    ai_prefix="AI",
+    human_prefix="User",
+)
+
+
+def user(user_message, history):
+    if history is None:
+        history = ""
+    return "", history + [[user_message, None]]
+
+
+def bot(history):
+    prompt = history[-1][0]
+    res = agent(
+        {
+            "input": prompt,
+            "current_time": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "language": "English",
+        }
+    )
+
+    response = res["output"]
+    history[-1][1] = response
+
+    # free up some memory if we have too many messages
+    if len(memory.buffer) > 2000:
+        memory.chat_memory.messages.pop(0)
+    return history
+
 
 def main():
     with gr.Blocks() as app:
@@ -110,7 +166,9 @@ def main():
         state = gr.State([])
 
         with gr.Row():
-            msg = gr.Textbox(show_label=False, placeholder="Enter text and press enter").style(container=False)
+            msg = gr.Textbox(
+                show_label=False, placeholder="Enter text and press enter"
+            ).style(container=False)
 
         def user(user_message, history):
             if history is None:
@@ -119,11 +177,17 @@ def main():
 
         def bot(history):
             prompt = history[-1][0]
-            res = agent({"input":prompt,
-                         "current_time":datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                         "language": "English"})
+            res = agent(
+                {
+                    "input": prompt,
+                    "current_time": datetime.datetime.now().strftime(
+                        "%Y-%m-%d %H:%M:%S"
+                    ),
+                    "language": "English",
+                }
+            )
 
-            response = res['output']
+            response = res["output"]
             history[-1][1] = response
 
             # free up some memory if we have too many messages
@@ -132,10 +196,12 @@ def main():
             return history
 
         msg.submit(user, [msg, chatbot], [msg, chatbot], queue=False).then(
-                bot, chatbot, chatbot)
+            bot, chatbot, chatbot
+        )
 
     app.queue()
     app.launch(share=False, server_name="localhost")
+
 
 if __name__ == "__main__":
     main()
