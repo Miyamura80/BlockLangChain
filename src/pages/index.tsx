@@ -7,6 +7,7 @@ import { ethers } from 'ethers';
 import { IDKitWidget } from '@worldcoin/idkit'
 import type { ISuccessResult } from "@worldcoin/idkit";
 import dynamic from 'next/dynamic';
+import LanguageTabs from './languagetab';
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -28,6 +29,7 @@ export default function Home() {
   const [input, setInput] = useState<string>('');
   const [metamaskAddr, setMetamaskAddr] = useState<string>('Not connected to wallet');
   const [chatSession, setChatSession] = useState<ChatSession>([]);
+  const [language, setLanguage] = useState<string>('english');
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -36,6 +38,36 @@ export default function Home() {
   };
 
   useEffect(scrollToBottom, [messages]);
+
+  const changeLanguage = (e:any) => {
+    setLanguage(e.target.id);
+  };
+
+  const buttonClass = (lang:string) => {
+    const baseClass =
+      'hs-tab-active:bg-white hs-tab-active:text-gray-700 hs-tab-active:dark:bg-gray-800 hs-tab-active:dark:text-gray-400 dark:hs-tab-active:bg-gray-800 py-3 px-4 inline-flex items-center gap-2 bg-transparent text-sm text-gray-500 hover:text-gray-700 font-medium rounded-md hover:hover:text-blue-600 dark:text-gray-400 dark:hover:text-white';
+    return language === lang ? `${baseClass} bg-white dark:bg-gray-800` : baseClass;
+  };
+
+  useEffect(() => {
+    if (language) {
+      fetch(`http://localhost:5000/api/set_language/${language}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+        })
+        .catch((error) => {
+          console.error('There was a problem with the fetch operation:', error);
+        });
+    }
+  }, [language]);
+
 
   const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInput(e.target.value);
@@ -92,6 +124,7 @@ export default function Home() {
     if (recentString.toLowerCase() === 'reset') {
       console.log("Reset");
       resetMemory();
+      return;
     }
 
 
@@ -159,13 +192,18 @@ export default function Home() {
         <title>BlockLangChain</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
+
   
       <div className="min-h-screen bg-gray-100 py-6 flex flex-col justify-center sm:py-12">
+
+
         <div className="relative w-full max-w-2xl mx-auto">
           <div className="bg-white shadow-lg rounded-2xl p-6">
             <h1 className="text-4xl font-bold text-center mb-4">
               Chat Interface
             </h1>
+
+
 
             {/* Messages */}
             <div className="overflow-y-auto h-72 mb-4">
@@ -210,20 +248,60 @@ export default function Home() {
             <div className="border-t border-gray-300 pt-4 text-black"> 
                   {metamaskAddr}
             </div>
-            <IDKitWidget
-              action="test-action-eito"
-              onSuccess={onSuccess}
-              handleVerify={handleProof}
-              app_id="app_staging_7dceb87587ebc8f52332d91f9a6e5280"
-              // walletConnectProjectId="get_this_from_walletconnect_portal"
-            >
-              {({ open }) => 
-                <button onClick={open} 
-                        type="button" 
-                        className="rounded-lg border border-gray-700 bg-gray-700 px-5 py-2.5 text-center text-sm font-medium text-white shadow-sm transition-all hover:border-gray-900 hover:bg-gray-900 focus:ring focus:ring-gray-200 disabled:cursor-not-allowed disabled:border-gray-300 disabled:bg-gray-300">Verify Humanity</button>
 
-              }
-            </IDKitWidget>
+            <div className="container mx-auto">
+                <div className="flex px-4"> 
+                <IDKitWidget
+                  action="test-action-eito"
+                  onSuccess={onSuccess}
+                  handleVerify={handleProof}
+                  app_id="app_staging_7dceb87587ebc8f52332d91f9a6e5280"
+                  // walletConnectProjectId="get_this_from_walletconnect_portal"
+                >
+                  {({ open }) => 
+                    <button onClick={open} 
+                            type="button" 
+                            className="rounded-lg border border-gray-700 bg-gray-700 px-5 py-2.5 text-center text-sm font-medium text-white shadow-sm transition-all hover:border-gray-900 hover:bg-gray-900 focus:ring focus:ring-gray-200 disabled:cursor-not-allowed disabled:border-gray-300 disabled:bg-gray-300">Verify Humanity</button>
+
+                  }
+                </IDKitWidget>
+                
+                <div className="flex px-4">
+      <div className="flex bg-gray-100 hover:bg-gray-200 rounded-lg transition p-1 dark:bg-gray-700 dark:hover:bg-gray-600">
+        <nav className="flex space-x-2" aria-label="Tabs" role="tablist">
+          <button
+            type="button"
+            className={buttonClass('english')}
+            id="english"
+            onClick={changeLanguage}
+          >
+            ENGLISH
+          </button>
+          <button
+            type="button"
+            className={buttonClass('japanese')}
+            id="japanese"
+            onClick={changeLanguage}
+          >
+            日本語
+          </button>
+          <button
+            type="button"
+            className={buttonClass('bulgarian')}
+            id="bulgarian"
+            onClick={changeLanguage}
+          >
+            български
+          </button>
+        </nav>
+      </div>
+    </div>
+                
+              
+              </div>
+            </div>
+            
+            
             
           </div>
           <div className="mt-8 text-center">
