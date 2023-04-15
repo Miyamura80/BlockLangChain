@@ -17,26 +17,23 @@ def handle_chat():
     text = data['text']
     return jsonify(text=text)
 
-@app.route('/api/data')
-def get_data():
-    return jsonify({"message": "Hello from Flask!"})
 
 
-@app.route('/api/get_nonce', methods=['POST'])
-def get_nonce():
-    data = request.get_json()
-    address = data.get('address')
-    if not address:
-        return jsonify({"error": "Address not provided"}), 400
-        print("error")
-    print(f"address successfully received. {address}")
-    address = Web3.toChecksumAddress(address)
-    try:
-        nonce = w3.eth.getTransactionCount(address)
-        return jsonify({"nonce": nonce})
-    except Exception as e:
-        print(e)
-        return jsonify({"error": str(e)}), 500
+# @app.route('/api/get_nonce', methods=['POST'])
+# def get_nonce():
+#     data = request.get_json()
+#     address = data.get('address')
+#     if not address:
+#         return jsonify({"error": "Address not provided"}), 400
+#         print("error")
+#     print(f"address successfully received. {address}")
+#     address = Web3.toChecksumAddress(address)
+#     try:
+#         nonce = w3.eth.getTransactionCount(address)
+#         return jsonify({"nonce": nonce})
+#     except Exception as e:
+#         print(e)
+#         return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)
