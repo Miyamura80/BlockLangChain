@@ -10,6 +10,14 @@ import dynamic from 'next/dynamic';
 
 const inter = Inter({ subsets: ['latin'] })
 
+// if (process.env.hasOwnProperty('MY_ENV_VAR')) {
+//   // do something if the MY_ENV_VAR environment variable exists
+// } else {
+//   // do something else if the MY_ENV_VAR environment variable does not exist
+// }
+
+
+
 type MessageType = {
   sender: 'self' | 'other';
   text: string;
