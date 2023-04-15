@@ -22,9 +22,13 @@ w3 = Web3(Web3.HTTPProvider(f"https://goerli.infura.io/v3/{INFURA_API_TOKEN}"))
 @app.route('/api/message', methods=['POST'])
 def handle_chat():
     data = request.get_json()
-    print(data)
-    text = data['text']
-    return jsonify(text=text)
+    chatSession = data['chatSession']
+    full_chat_list = chatSession.split(',')
+    if len(chatSession) > 0 :
+        return jsonify(text=full_chat_list[0], session=chatSession)        
+    else:
+        return jsonify(text="", session=chatSession)
+    
 
 
 

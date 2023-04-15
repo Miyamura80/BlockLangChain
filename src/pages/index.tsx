@@ -16,6 +16,8 @@ type MessageType = {
   text: string;
 };
 
+type ChatSession = string[]
+
 declare global {
   interface Window {
     ethereum: any;
@@ -26,6 +28,8 @@ export default function Home() {
   const [messages, setMessages] = useState<MessageType[]>([]);
   const [input, setInput] = useState<string>('');
   const [metamaskAddr, setMetamaskAddr] = useState<string>('Not connected to wallet');
+  const [chatSession, setChatSession] = useState<ChatSession>([]);
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -64,40 +68,55 @@ export default function Home() {
     }
   };
 
+  
+
+  const sendChatSession = async (chatSessionString: string) => {
+    // Make API call to Flask backend
+    const response = await fetch('http://localhost:5000/api/message', {  // Update the URL
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ chatSession: chatSessionString}),
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+
+      // Connect to MetaMask Wallet
+      if(data.text.toLowerCase() === 'connect'){
+        connectMetaMask();
+      }        
+
+      // Add Flask backend response to the chat as 'other'
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        { sender: 'other', text: data.text },
+      ]);
+    } else {
+      console.error('Error while sending message to the backend');
+    }
+    setInput('');
+  };
+
   const handleKeyDown = async (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && input.trim() !== '') {
       // Add your own message to the chat
       setMessages([...messages, { sender: 'self', text: input.trim() }]);
-  
-      // Make API call to Flask backend
-      const response = await fetch('http://localhost:5000/api/message', {  // Update the URL
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ text: input.trim() }),
-      });
-  
-      if (response.ok) {
-        const data = await response.json();
-
-        // Connect to MetaMask Wallet
-        if(data.text.toLowerCase() === 'connect'){
-          connectMetaMask();
-        }        
-
-        // Add Flask backend response to the chat as 'other'
-        setMessages((prevMessages) => [
-          ...prevMessages,
-          { sender: 'other', text: data.text },
-        ]);
-      } else {
-        console.error('Error while sending message to the backend');
-      }
-  
-      setInput('');
+      setChatSession([input.trim(), ...chatSession]);  
     }
   };
+  
+  // Triggers after handleKeyDown() updates chatSessionString
+  useEffect(() => {
+    const chatSessionString: string = chatSession.join(', ');
+
+    // Call the API with the chatSessionString
+    if(chatSessionString.length > 0){
+      sendChatSession(chatSessionString);
+    }
+    
+  }, [chatSession]);
 
   const IDKitWidget = dynamic(() => import('@worldcoin/idkit').then(mod => mod.IDKitWidget), { ssr: false })
 
