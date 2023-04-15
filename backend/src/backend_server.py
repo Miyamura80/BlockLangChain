@@ -72,7 +72,7 @@ def get_agent():
     You love to answer questions and you are very good at it.
     Assistant has access to the following tools:"""
 
-    INSTRUCTIONS = """
+    INSTRUCTIONS = f"""
     To use a tool, please use the following format:
     ``
     Thought: Should I use a tool? Yes
