@@ -107,9 +107,22 @@ export default function Home() {
     }
   };
   
-  // Triggers after handleKeyDown() updates chatSessionString
-  useEffect(() => {
-    const chatSessionString: string = chatSession.join(', ');
+      // Make API call to Flask backend
+      const response = await fetch('https://backend-python-production.up.railway.app/api/message', {  // Update the URL
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ text: input.trim() }),
+      });
+  
+      if (response.ok) {
+        const data = await response.json();
+
+        // Connect to MetaMask Wallet
+        if(data.text.toLowerCase() === 'connect'){
+          connectMetaMask();
+        }        
 
     // Call the API with the chatSessionString
     if(chatSessionString.length > 0){
