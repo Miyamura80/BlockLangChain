@@ -8,7 +8,8 @@ import { IDKitWidget } from '@worldcoin/idkit'
 import type { ISuccessResult } from "@worldcoin/idkit";
 import dynamic from 'next/dynamic';
 import { Message } from '@/components/Message';
-
+import { useAccount, useConnect } from 'wagmi';
+import { InjectedConnector } from 'wagmi/connectors/injected'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -24,10 +25,15 @@ declare global {
 }
 
 export default function Home() {
+  const { connect } = useConnect({
+    connector: new InjectedConnector(),
+  })
   const [messages, setMessages] = useState<MessageType[]>([]);
   const [input, setInput] = useState<string>('');
-  const [metamaskAddr, setMetamaskAddr] = useState<string>('Not connected to wallet');
+  const { address, isConnected } = useAccount()
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  console.log("ADDRESS", address)
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -36,10 +42,11 @@ export default function Home() {
   useEffect(scrollToBottom, [messages]);
 
   const connectMetaMask = async () => {
+    console.log("connect")
     if (typeof window.ethereum !== 'undefined') {
       try {
         // Request user to connect MetaMask wallet
-        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        await connect();
   
         // You can now use the connected account for further actions, e.g., getting the account balance
         // const provider = new ethers.providers.Web3Provider(window.ethereum);
@@ -49,9 +56,8 @@ export default function Home() {
         // Display connected account address in the chat
         setMessages((prevMessages) => [
           ...prevMessages,
-          { sender: 'other', text: `Connected to ${accounts[0]}` },
+          { sender: 'other', text: `Connected wallet` },
         ]);
-        setMetamaskAddr(`Connected to: ${accounts[0]}`);
       } catch (error:any) {
         // Handle errors that occurred during the connection process
         console.error('Error connecting MetaMask wallet:', error.message);
@@ -147,7 +153,7 @@ export default function Home() {
 
             {/* MetaMask Address */}
             <div className="border-t border-gray-300 pt-4 text-black"> 
-                  {metamaskAddr}
+                  {address}
             </div>
 
             <IDKitWidget
