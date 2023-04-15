@@ -1,10 +1,7 @@
-# %%
 import openai
 from langchain.chat_models import ChatOpenAI
 import os
 
-os.environ["OPENAI_API_KEY"] = "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"
-openai.api_key = "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"
 
 openai.ChatCompletion.create(
     model="gpt-3.5-turbo",

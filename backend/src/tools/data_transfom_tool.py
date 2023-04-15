@@ -3,7 +3,7 @@ from langchain.llms import OpenAI
 
 
 class DataTransformTool(SyncTool):
-    name = "data_transform_tool"
+    name = "DATA_TRANSFORM_TOOL"
     description = (
         "This is a tool that transforms and data. We consider data extraction as transformation too."
         "You shouldn't use this tool often. It just calls an LLM on the data (previous observation), and the thought "

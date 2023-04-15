@@ -1,9 +1,19 @@
+import os
 import pickle
 from tools.util_tools import SyncTool
 
+TOKEN_DATA_PATH = os.path.join(
+    os.path.dirname(
+        os.path.dirname(
+            os.path.abspath(__file__)
+        )
+    ),
+    "data",
+    "token_data.pkl"
+)
 
 class ERC20Tool(SyncTool):
-    name = "erc20_data"
+    name = "ERC20_DATA"
     description = (
         "A crypto token is a representation of an asset or interest that has been tokenized on an existing "
         "cryptocurrency's blockchain. Crypto tokens and cryptocurrencies share many similarities, but cryptocurrencies "
@@ -32,7 +42,7 @@ class ERC20Tool(SyncTool):
         try:
             clean_query = query.replace("'", "")
 
-            with open("src/data/token_data.pkl", "rb") as token_pkl:
+            with open(TOKEN_DATA_PATH, "rb") as token_pkl:
                 token_data = pickle.load(token_pkl)
 
             for token_dict in token_data:

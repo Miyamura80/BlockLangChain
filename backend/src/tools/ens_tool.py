@@ -3,7 +3,7 @@ from web3_config import w3
 
 
 class ENSToOwnerAddressTool(SyncTool):
-    name = "ENS_to_owner_address"
+    name = "ENS_OWNER"
     description = (
         "The Ethereum Name Service (ENS) is analogous to the Domain Name Service. It enables users and developers to "
         "use human-friendly names in place of error-prone hexadecimal addresses, content hashes, and more.\n"

@@ -3,7 +3,7 @@ import requests
 
 
 class AirstackAITool(SyncTool):
-    name = "airstack_ai"
+    name = "AIRSTACK_TOOL"
     description = (
         "The Airstack AI Assistant is powered by GPT4 and trained on the Airstack GraphQL. It is capable of turning "
         "natural language prompts into Airstack queries. This works well when you have CONCRETE information. This "
