@@ -2,12 +2,21 @@ from flask import Flask, request, jsonify, send_from_directory
 from web3 import Web3
 from flask_cors import CORS
 from web3 import Web3, exceptions
+import configparser
+
+# Secrets
+INFURA_API_TOKEN = ""
+env_config = configparser.ConfigParser()
+env_config.read("config.ini")
+if env_config["DEFAULT"]["INFURA_API_TOKEN"]:
+    INFURA_API_TOKEN = env_config["DEFAULT"]["INFURA_API_TOKEN"]
+
 
 app = Flask(__name__)
 CORS(app)
 
 # Connect to the Ethereum testnet (e.g., Rinkeby)
-w3 = Web3(Web3.HTTPProvider('https://goerli.infura.io/v3/29ac942b8a18431c8c981c713a0a424a'))
+w3 = Web3(Web3.HTTPProvider(f"https://goerli.infura.io/v3/{INFURA_API_TOKEN}"))
 
 
 @app.route('/api/message', methods=['POST'])
