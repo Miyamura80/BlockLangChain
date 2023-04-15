@@ -1,27 +1,20 @@
 from flask import Flask, request, jsonify, session
 from web3 import Web3
 from flask_cors import CORS
-from web3 import Web3
 import os
-import configparser
+from backend_server import get_agent
 from datetime import datetime as dt
+from web3_config import w3
 import openai
-
-
-# Secrets
-INFURA_API_TOKEN = ""
-OPENAI_API_TOKEN = ""
-env_config = configparser.ConfigParser()
-env_config.read("config.ini")
 
 INFURA_API_TOKEN = os.getenv("INFURA_API_TOKEN")
 OPENAI_API_TOKEN = os.getenv("OPENAI_API_TOKEN")
-
 
 openai.api_key = OPENAI_API_TOKEN
 
 app = Flask(__name__)
 CORS(app)
+app.secret_key = os.environ.get("GARBAGE_POINTER") or os.urandom(24)
 
 LANGUAGE = "ENGLISH"
 
@@ -65,15 +58,54 @@ def handle_chat():
         return jsonify(text="", session=chatSession)
 
 
-# This API is used when you sent a message when const USE_AI = true; in `index.tsx`
+class AddressRouter:
+    def __init__(self) -> None:
+        self.agent, self.memory = get_agent()
+
+    def reinitialise(self):
+        self.agent, self.memory = get_agent()
+
+    def bot(self, prompt):
+        res = self.agent(
+            {
+                "input": prompt,
+                "current_time": dt.now().strftime("%Y-%m-%d %H:%M:%S"),
+                "language": "English",
+            }
+        )
+
+        if len(self.memory.buffer) > 2000:
+            self.memory.chat_memory.messages.pop(0)
+        return res["output"]
+
+    def handle_bot_interaction(self):
+        data = request.get_json()
+        chatSession = data["chatSession"]
+        full_chat_list = chatSession.split(",")
+        if len(chatSession) > 0:
+            query = full_chat_list[0]
+        else:
+            query = ""
+        response = self.bot(query)
+        return jsonify(text=response, session=chatSession)
+
+
+personal_routers = {}
+
+
 @app.route("/api/bot_interaction/<address>", methods=["POST"])
 def handle_api_bot_interaction(address):
-    return jsonify(text="Constant AI")
+    if address not in personal_routers:
+        personal_routers[address] = AddressRouter()
+    return personal_routers[address].handle_bot_interaction()
 
 
 @app.route("/api/reinitialise/<address>", methods=["POST"])
 def handle_api_reinitialise(address):
-    return jsonify(text="reset")
+    if address not in personal_routers:
+        return jsonify(text="No such address")
+    personal_routers[address].reinitialise()
+    return jsonify(text="Reinitialised")
 
 
 @app.route("/api/set_language/<lang>", methods=["POST"])
@@ -84,21 +116,5 @@ def set_language(lang):
     return jsonify(text="reset")
 
 
-# @app.route('/api/get_nonce', methods=['POST'])
-# def get_nonce():
-#     data = request.get_json()
-#     address = data.get('address')
-#     if not address:
-#         return jsonify({"error": "Address not provided"}), 400
-#         print("error")
-#     print(f"address successfully received. {address}")
-#     address = Web3.toChecksumAddress(address)
-#     try:
-#         nonce = w3.eth.getTransactionCount(address)
-#         return jsonify({"nonce": nonce})
-#     except Exception as e:
-#         print(e)
-#         return jsonify({"error": str(e)}), 500
-
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))

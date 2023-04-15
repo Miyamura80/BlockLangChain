@@ -5,10 +5,10 @@ import requests
 class AirstackAITool(SyncTool):
     name = "AIRSTACK_TOOL"
     description = (
+        "Always use this tool when you are asked to explicitly use AIRSTACK_TOOL.\n"
         "The Airstack AI Assistant is powered by GPT4 and trained on the Airstack GraphQL. It is capable of turning "
         "natural language prompts into Airstack queries. This works well when you have CONCRETE information. This "
         "means that you should try to deduce the concrete information first, and then run a query.\n"
-        "We first create the GraphQL query, and then execute it.\n"
         "Example GOOD input: 0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045 MATIC balance\n"
         "Example BAD input: Fetch all the token holders of Moonbirds NFT Collection\n"
         "Example GOOD input: Get the sales history, royalties, and platform fees for the "
