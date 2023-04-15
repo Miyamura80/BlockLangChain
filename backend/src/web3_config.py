@@ -2,13 +2,14 @@ import os
 import openai
 from web3 import Web3, EthereumTesterProvider
 import configparser
+import os
 
 # Secrets
 INFURA_API_TOKEN = ""
 env_config = configparser.ConfigParser()
 env_config.read("config.ini")
-if env_config["DEFAULT"]["INFURA_API_TOKEN"]:
-    INFURA_API_TOKEN = env_config["DEFAULT"]["INFURA_API_TOKEN"]
+INFURA_API_TOKEN = os.getenv("INFURA_API_TOKEN")
+
 
 def setup_web3(mode="infura"):
     if mode == "infura":
@@ -30,9 +31,7 @@ def setup_web3(mode="infura"):
     return w3
 
 
-
 os.environ["LANGCHAIN_HANDLER"] = "langchain"
 
 openai.api_key = os.environ["OPENAI_API_KEY"]
 w3 = setup_web3(mode="quicknode")
-
