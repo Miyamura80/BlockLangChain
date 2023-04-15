@@ -168,7 +168,7 @@ export default function Home() {
 
 
     if (process.env.DEPLOYMENT_ENV == "TRUE") {
-      api_sign = !USE_AI ? 'https://backend-python-production.up.railway.app/api/message': 'https://backend-python-production.up.railway.app/api/bot_interaction/69420';
+      api_sign = !USE_AI ? 'https://blocklangchain-production.up.railway.app/api/message': 'https://blocklangchain-production.up.railway.app/api/bot_interaction/69420';
     } else {
       api_sign = !USE_AI ? 'http://localhost:5000/api/message': 'http://localhost:5000/api/bot_interaction/69420';
       setInput('');
