@@ -139,12 +139,13 @@ export default function Home() {
       return;
     }
 
+    let api_sign = '';
 
 
     if (process.env.hasOwnProperty('DEPLOYMENT_ENV')) {
-      const api_sign = !USE_AI ? 'https://backend-python-production.up.railway.app/api/message': 'https://backend-python-production.up.railway.app/api/bot_interaction/69420';
+      api_sign = !USE_AI ? 'https://backend-python-production.up.railway.app/api/message': 'https://backend-python-production.up.railway.app/api/bot_interaction/69420';
     } else {
-      const api_sign = !USE_AI ? 'http://localhost:5000/api/message': 'http://localhost:5000/api/bot_interaction/69420';
+      api_sign = !USE_AI ? 'http://localhost:5000/api/message': 'http://localhost:5000/api/bot_interaction/69420';
       setInput('');
       // do something else if the MY_ENV_VAR environment variable does not exist
     }
