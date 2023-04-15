@@ -7,7 +7,6 @@ import { ethers } from 'ethers';
 import { IDKitWidget } from '@worldcoin/idkit'
 import type { ISuccessResult } from "@worldcoin/idkit";
 import dynamic from 'next/dynamic';
-import LanguageTabs from './languagetab';
 
 const inter = Inter({ subsets: ['latin'] })
 
