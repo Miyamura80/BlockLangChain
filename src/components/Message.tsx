@@ -5,7 +5,7 @@ import {
 } from "@1inch/fusion-sdk";
 import clsx from "clsx";
 import { Contract, utils } from "ethers";
-import { formatEther, formatUnits } from "ethers/lib/utils.js";
+import { formatEther, formatUnits, parseUnits } from "ethers/lib/utils.js";
 import { useEffect, useState } from "react";
 import { erc20ABI, useAccount, useSigner } from "wagmi";
 
@@ -23,8 +23,12 @@ const AddressMessage = ({ address }: { address: string }) => {
   const [balance, setBalance] = useState("");
   const [amount, setAmount] = useState("");
   const [token, setToken] = useState(TOKENS[0].value);
+  const [decimals, setDecimals] = useState(18);
+
+  console.log("ADDRESS");
 
   const checkIsErc20 = async () => {
+    console.log("hi");
     if (!signer) return;
     const contract = new Contract(address, erc20ABI, signer);
 
@@ -34,6 +38,7 @@ const AddressMessage = ({ address }: { address: string }) => {
 
       setErc20Name(await contract.name());
       setBalance(formatUnits(await contract.balanceOf(acctAddress), decimals));
+      setDecimals(decimals);
 
       setIsErc20(true);
       return true;
@@ -45,7 +50,7 @@ const AddressMessage = ({ address }: { address: string }) => {
 
   useEffect(() => {
     checkIsErc20();
-  }, []);
+  }, [address, signer]);
 
   const swap = async () => {
     console.log("SWAPPING", amount, token);
@@ -61,7 +66,7 @@ const AddressMessage = ({ address }: { address: string }) => {
       .placeOrder({
         fromTokenAddress: address,
         toTokenAddress: token,
-        amount: amount,
+        amount: parseUnits(amount, decimals).toString(),
         walletAddress: acctAddress as any,
       })
       .then(console.log);
