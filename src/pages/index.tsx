@@ -18,6 +18,8 @@ type MessageType = {
   text: string;
 };
 
+type ChatSession = string[]
+
 declare global {
   interface Window {
     ethereum: any;
@@ -30,7 +32,8 @@ export default function Home() {
   })
   const [messages, setMessages] = useState<MessageType[]>([]);
   const [input, setInput] = useState<string>('');
-  const { address, isConnected } = useAccount()
+  const { address, isConnected } = useAccount();
+  const [chatSession, setChatSession] = useState([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   console.log("ADDRESS", address)
@@ -40,6 +43,24 @@ export default function Home() {
   };
 
   useEffect(scrollToBottom, [messages]);
+
+  const resetMemory = async () => {
+    // Make API call to Flask backend
+    const response = await fetch('https://backend-python-production.up.railway.app/api/reinitialise/69420', {  // Update the URL
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: "",
+    });
+
+    if (response.ok) {
+      setChatSession([]);
+    } else {
+      console.error('Error while sending message to the backend');
+    }
+    setInput('');
+  }
 
   const connectMetaMask = async () => {
     console.log("connect")
@@ -67,40 +88,60 @@ export default function Home() {
     }
   };
 
+  
+  const USE_AI = false;
+
+  const sendChatSession = async (chatSessionString: string, recentString: string) => {
+    if (recentString.toLowerCase() === 'reset') {
+      console.log("Reset");
+      resetMemory();
+      return;
+    }
+
+
+    const api_sign = !USE_AI ? 'https://backend-python-production.up.railway.app/api/message': 'https://backend-python-production.up.railway.app/api/bot_interaction/69420';
+    // Make API call to Flask backend
+    const response = await fetch(api_sign, {  // Update the URL
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ chatSession: chatSessionString}),
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      // Connect to MetaMask Wallet
+      if(data.text.toLowerCase() === 'connect'){
+        connectMetaMask();
+      } 
+      // Add Flask backend response to the chat as 'other'
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        { sender: 'other', text: data.text },
+      ]);
+    } else {
+      console.error('Error while sending message to the backend');
+    }
+    setInput('');
+  };
+
   const handleKeyDown = async (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && input.trim() !== '') {
       // Add your own message to the chat
       setMessages([...messages, { sender: 'self', text: input.trim() }]);
-  
-      // Make API call to Flask backend
-      const response = await fetch('https://backend-python-production.up.railway.app/api/message', {  // Update the URL
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ text: input.trim() }),
-      });
-  
-      if (response.ok) {
-        const data = await response.json();
-
-        // Connect to MetaMask Wallet
-        if(data.text.toLowerCase() === 'connect'){
-          connectMetaMask();
-        }        
-
-        // Add Flask backend response to the chat as 'other'
-        setMessages((prevMessages) => [
-          ...prevMessages,
-          { sender: 'other', text: data.text },
-        ]);
-      } else {
-        console.error('Error while sending message to the backend');
-      }
-  
-      setInput('');
+      setChatSession([input.trim(), ...chatSession]);  
     }
   };
+  
+  // Triggers after handleKeyDown() updates chatSessionString
+  useEffect(() => {
+    const chatSessionString: string = chatSession.join(', ');
+    // Call the API with the chatSessionString
+    if(chatSessionString.length > 0){
+      sendChatSession(chatSessionString, chatSession[0]);
+    }
+  }, [chatSession]);
 
   const IDKitWidget = dynamic(() => import('@worldcoin/idkit').then(mod => mod.IDKitWidget), { ssr: false })
 
