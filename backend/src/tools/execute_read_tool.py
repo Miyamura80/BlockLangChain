@@ -6,7 +6,7 @@ from web3_config import w3
 
 
 class ExecuteReadTool(SyncTool):
-    name = "execute_read_tool"
+    name = "EXECUTE_CONTRACT_READ"
     description = (
         "This tool executes a read on the blockchain. It should be used once we know the contract address, and "
         "we after we have used the etherscan_abi_query tool to get its abi. Also, this should be called only on "

@@ -1,4 +1,5 @@
 import os
+import openai
 from web3 import Web3, EthereumTesterProvider
 import configparser
 
@@ -22,4 +23,8 @@ def setup_web3(mode="infura"):
     return w3
 
 
+
+os.environ["LANGCHAIN_HANDLER"] = "langchain"
+
+openai.api_key = os.environ["OPENAI_API_KEY"]
 w3 = setup_web3(mode="infura")
