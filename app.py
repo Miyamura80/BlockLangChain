@@ -31,6 +31,7 @@ def handle_chat():
     else:
         return jsonify(text="", session=chatSession)
 
+
 # This API is used when you sent a message when const USE_AI = true; in `index.tsx`
 @app.route("/api/bot_interaction/<address>", methods=["POST"])
 def handle_api_bot_interaction(address):
@@ -40,6 +41,7 @@ def handle_api_bot_interaction(address):
 @app.route("/api/reinitialise/<address>", methods=["POST"])
 def handle_api_reinitialise(address):
     return jsonify(text="reset")
+
 
 
 # @app.route('/api/get_nonce', methods=['POST'])

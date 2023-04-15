@@ -164,6 +164,7 @@ def main():
         state = gr.State([])
 
         with gr.Row():
+
             msg = gr.Textbox(
                 show_label=False, placeholder="Enter text and press enter"
             ).style(container=False)
@@ -186,6 +187,7 @@ def main():
             )
 
             response = res["output"]
+
             history[-1][1] = response
 
             # free up some memory if we have too many messages
@@ -197,9 +199,11 @@ def main():
             bot, chatbot, chatbot
         )
 
+
     app.queue()
     app.launch(share=False, server_name="localhost")
 
 
 if __name__ == "__main__":
     main()
+

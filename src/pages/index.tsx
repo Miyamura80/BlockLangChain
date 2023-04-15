@@ -7,6 +7,9 @@ import { ethers } from 'ethers';
 import { IDKitWidget } from '@worldcoin/idkit'
 import type { ISuccessResult } from "@worldcoin/idkit";
 import dynamic from 'next/dynamic';
+import { Message } from '@/components/Message';
+import { useAccount, useConnect } from 'wagmi';
+import { InjectedConnector } from 'wagmi/connectors/injected'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -24,22 +27,22 @@ declare global {
 }
 
 export default function Home() {
+  const { connect } = useConnect({
+    connector: new InjectedConnector(),
+  })
   const [messages, setMessages] = useState<MessageType[]>([]);
   const [input, setInput] = useState<string>('');
-  const [metamaskAddr, setMetamaskAddr] = useState<string>('Not connected to wallet');
-  const [chatSession, setChatSession] = useState<ChatSession>([]);
-
+  const { address, isConnected } = useAccount();
+  const [chatSession, setChatSession] = useState([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  console.log("ADDRESS", address)
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
   useEffect(scrollToBottom, [messages]);
-
-  const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setInput(e.target.value);
-  };
 
   const resetMemory = async () => {
     // Make API call to Flask backend
@@ -60,10 +63,11 @@ export default function Home() {
   }
 
   const connectMetaMask = async () => {
+    console.log("connect")
     if (typeof window.ethereum !== 'undefined') {
       try {
         // Request user to connect MetaMask wallet
-        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        await connect();
   
         // You can now use the connected account for further actions, e.g., getting the account balance
         // const provider = new ethers.providers.Web3Provider(window.ethereum);
@@ -73,9 +77,8 @@ export default function Home() {
         // Display connected account address in the chat
         setMessages((prevMessages) => [
           ...prevMessages,
-          { sender: 'other', text: `Connected to ${accounts[0]}` },
+          { sender: 'other', text: `Connected wallet` },
         ]);
-        setMetamaskAddr(`Connected to: ${accounts[0]}`);
       } catch (error:any) {
         // Handle errors that occurred during the connection process
         console.error('Error connecting MetaMask wallet:', error.message);
@@ -171,27 +174,9 @@ export default function Home() {
             {/* Messages */}
             <div className="overflow-y-auto h-72 mb-4">
               {messages.map((message, index) => (
-                <div
-                  key={index}
-                  className={`flex mb-4 ${
-                    message.sender === 'self'
-                      ? 'justify-end items-end'
-                      : 'justify-start items-start'
-                  }`}
-                >
-
-
-                  <div
-                    className={`rounded-lg px-4 py-2 mx-2 ${
-                      message.sender === 'self'
-                        ? 'bg-blue-500 text-white'
-                        : 'bg-slate-300 text-black'
-                    }`}
-                  >
-                    {message.text}
-                  </div>
-                </div>
+                <Message message={message} key={index}/>
               ))}
+
               <div ref={messagesEndRef}></div>
             </div>
 
@@ -202,15 +187,16 @@ export default function Home() {
                 className="w-full px-4 py-2 bg-gray-200 rounded-lg focus:outline-none focus:bg-gray-500"
                 placeholder="Type your message here"
                 value={input}
-                onChange={handleInput}
+                onChange={e => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
               />
             </div>
 
             {/* MetaMask Address */}
             <div className="border-t border-gray-300 pt-4 text-black"> 
-                  {metamaskAddr}
+                  {address}
             </div>
+
             <IDKitWidget
               action="test-action-eito"
               onSuccess={onSuccess}
