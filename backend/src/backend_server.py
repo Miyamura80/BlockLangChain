@@ -8,15 +8,19 @@ from tools import (
     AirstackAITool,
 )
 
+import json
 from langchain.llms import OpenAI
 from langchain.agents import Tool, initialize_agent
 from langchain.memory import ConversationBufferMemory
 from langchain.utilities import SerpAPIWrapper, PythonREPL
 import gradio as gr
 import datetime
+import re
 from web3_config import w3
 
 print(f"Connected to web3: {w3.is_connected()}")
+
+
 
 
 def get_agent():
@@ -64,7 +68,10 @@ def get_agent():
 
     tool_names = [tool.name for tool in tools]
 
-    PREFIX = """Consider that you are AI Assistant named AI, AI is designed to be able to assist with a wide range of tasks, from answering simple questions to providing in-depth explanations and discussions on a wide range of topics. As a language model, Assistant is able to generate human-like text based on the input it receives, allowing it to engage in natural-sounding conversations and provide responses that are coherent and relevant to the topic at hand.
+    PREFIX = """
+    YOUR ANSWERE SHOULDN'T HAVE LEADING SPACES!
+    
+    Consider that you are AI Assistant named AI, AI is designed to be able to assist with a wide range of tasks, from answering simple questions to providing in-depth explanations and discussions on a wide range of topics. As a language model, Assistant is able to generate human-like text based on the input it receives, allowing it to engage in natural-sounding conversations and provide responses that are coherent and relevant to the topic at hand.
 
     Assistant is constantly learning and improving, and its capabilities are constantly evolving. It is able to process and understand large amounts of text, and can use this knowledge to provide accurate and informative responses to a wide range of questions. Additionally, Assistant is able to generate its own text based on the input it receives, allowing it to engage in discussions and provide explanations and descriptions on a wide range of topics.
 
@@ -83,8 +90,9 @@ def get_agent():
     When you have a response to say to the Human, or if you do not need to use a tool, you MUST use the format:
     ``
     Thought: Should I use a tool? No
-    AI: [your response here]
+    AI: [your response here, show the tools that were used and their inputs]
     ``
+    YOUR ANSWER SHOULDN'T HAVE LEADING SPACES
     """
     SUFFIX = """
     CHAT HISTORY:
@@ -99,7 +107,7 @@ def get_agent():
     Thought: Should I use a tool?{agent_scratchpad}"""
 
     memory = ConversationBufferMemory(
-        # memory_key="chat_history",  # return_messages=True,
+        memory_key="chat_history",  # return_messages=True,
         input_key="input",
         output_key="output",
         ai_prefix="AI",
@@ -113,6 +121,18 @@ def get_agent():
         verbose=True,
         memory=memory,
         return_intermediate_steps=False,
+        agent_kwargs={
+            "input_variables": [
+                "input",
+                "agent_scratchpad",
+                "chat_history",
+                "current_time",
+                "language",
+            ],
+            "prefix": PREFIX,
+            "format_instructions": INSTRUCTIONS,
+            "suffix": SUFFIX,
+        },
     )
     agent.agent.llm_chain.verbose = True
     return agent, memory
@@ -130,17 +150,21 @@ def user(user_message, history):
 def bot(history):
     prompt = history[-1][0]
     try:
-        res = agent(
-            {
-                "input": prompt,
-                "current_time": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                "language": "English",
-            }
-        )
+        try:
+            res = agent(
+                {
+                    "input": prompt,
+                    "current_time": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                    "language": "English",
+                }
+            )
 
-        response = res["output"]
+            response = res["output"]
+        except ValueError as e:
+            llm = OpenAI(temperature=0)
+            response = llm(f"Extract the non-error information, and summarize it to the user: {str(e)}")
     except:
-        response = "Unfortunatetly, my database doesn't have this information. "
+        response = "Unfortunately, my database doesn't have this information. "
 
     history[-1][1] = response
 
@@ -168,17 +192,22 @@ def main():
 
         def bot(history):
             prompt = history[-1][0]
-            res = agent(
-                {
-                    "input": prompt,
-                    "current_time": datetime.datetime.now().strftime(
-                        "%Y-%m-%d %H:%M:%S"
-                    ),
-                    "language": "English",
-                }
-            )
+            try:
+                try:
+                    res = agent(
+                        {
+                            "input": prompt,
+                            "current_time": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                            "language": "English",
+                        }
+                    )
 
-            response = res["output"]
+                    response = res["output"]
+                except ValueError as e:
+                    llm = OpenAI(temperature=0)
+                    response = llm(f"Extract the non-error information, and summarize it to the user: {str(e)}")
+            except:
+                response = "Unfortunately, my database doesn't have this information. "
 
             history[-1][1] = response
 

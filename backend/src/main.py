@@ -5,6 +5,7 @@ import os
 from backend_server import get_agent
 from datetime import datetime as dt
 from web3_config import w3
+from langchain.llms import OpenAI
 import openai
 
 INFURA_API_TOKEN = os.getenv("INFURA_API_TOKEN")
@@ -79,17 +80,21 @@ class AddressRouter:
 
     def bot(self, prompt):
         try:
-            res = self.agent(
-                {
-                    "input": prompt,
-                    "current_time": dt.now().strftime("%Y-%m-%d %H:%M:%S"),
-                    "language": "English",
-                }
-            )
-            result = res["output"]
+            try:
+                res = self.agent(
+                    {
+                        "input": prompt,
+                        "current_time": dt.now().strftime("%Y-%m-%d %H:%M:%S"),
+                        "language": "English",
+                    }
+                )
+
+                result = res["output"]
+            except ValueError as e:
+                llm = OpenAI(temperature=0)
+                result = llm(f"Extract the non-error information, and summarize it to the user: {str(e)}")
         except:
-            result = "Unfortunately, my database doesn't have this information. You might consider " \
-                     "doing a goolge search."
+            result = "Unfortunately, my database doesn't have this information. "
 
         if len(self.memory.buffer) > 2000:
             self.memory.chat_memory.messages.pop(0)
@@ -134,4 +139,4 @@ def set_language(lang):
 
 
 if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+    app.run(debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 5111)))
